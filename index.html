@@ -35,7 +35,7 @@
     .leaflet-tooltip {
       white-space: normal !important;
       word-wrap: break-word;
-      max-width: 1000px !important;  /* force wide tooltips */
+      max-width: 1000px !important;
       min-width: 400px;
       font-size: 14px;
     }
@@ -86,6 +86,7 @@
     const groupStyle = { radius: 11, fillColor:"#ff006e", color:"#000", weight:2, opacity:1, fillOpacity:.88 };
 
     let currentKm = 50;
+    let activeSuburb = null; // to track selected suburb
 
     function countTotals() {
       let inCount = 0, outCount = 0;
@@ -125,6 +126,11 @@
         layer._rawProps = { name, support, distKm, members };
         layer._defaultStyle = suburbStyle;
         layer._outStyle = suburbOutStyle;
+
+        // On suburb click, mark as active
+        layer.on("click", function () {
+          activeSuburb = { name: name, latlng: layer.getLatLng() };
+        });
       }
     });
 
@@ -133,6 +139,24 @@
       onEachFeature: (feature, layer) => {
         const name = feature.properties?.SupportGroup || "Support Group";
         layer.bindTooltip(`<b>${name}</b>`, { sticky:true });
+
+        // On support group click, if a suburb is active, draw line + distance
+        layer.on("click", function(e) {
+          if (activeSuburb) {
+            if (map._activeLine) map.removeLayer(map._activeLine);
+            const supportLatLng = e.latlng;
+            const suburbLatLng = activeSuburb.latlng;
+            map._activeLine = L.polyline([suburbLatLng, supportLatLng], {
+              color: "purple", weight: 2, dashArray: "4,4"
+            }).addTo(map);
+            const dist = suburbLatLng.distanceTo(supportLatLng) / 1000;
+            L.popup()
+              .setLatLng(supportLatLng)
+              .setContent(`<b>${activeSuburb.name} → ${name}</b><br>Distance: ${dist.toFixed(2)} km`)
+              .openOn(map);
+            activeSuburb = null;
+          }
+        });
       }
     });
 
@@ -201,6 +225,26 @@
       return div;
     };
     legend.addTo(map);
+
+    // Reset button above legend
+    const resetControl = L.control({ position: 'bottomleft' });
+    resetControl.onAdd = function(map) {
+      const div = L.DomUtil.create('div', '');
+      const btn = L.DomUtil.create('button', '', div);
+      btn.innerHTML = "Reset Lines";
+      btn.style.marginBottom = "6px";
+      btn.style.padding = "6px 12px";
+      btn.style.cursor = "pointer";
+      btn.onclick = function() {
+        if (map._activeLine) {
+          map.removeLayer(map._activeLine);
+          map._activeLine = null;
+        }
+        activeSuburb = null;
+      };
+      return div;
+    };
+    resetControl.addTo(map);
 
     // Initial compute
     updateTooltipsAndStyles();

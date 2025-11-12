@@ -1,710 +1,489 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ileostomy Association Calendar</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ileostomy Association Calendar — v9.2</title>
+<style>
+  :root { --accent1:#667eea; --accent2:#764ba2; }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+    background:linear-gradient(135deg,var(--accent1) 0%,var(--accent2) 100%);
+    min-height:100vh;padding:6px;
+  }
+  .container{max-width:1200px;margin:0 auto;background:#fff;border-radius:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden;}
+  .header{background:linear-gradient(135deg,var(--accent1) 0%,var(--accent2) 100%);
+    color:#fff;padding:14px;text-align:center;}
+  .header h1{font-size:1.6em;margin-bottom:4px;}
+  .main-content{display:flex;flex-wrap:wrap;}
+  .sidebar{width:260px;background:#f8f9fa;padding:14px;border-right:1px solid #e0e0e0;}
+  .sidebar h2{color:var(--accent1);font-size:1.15em;margin-bottom:10px;}
+  .filter-group{display:flex;flex-direction:column;gap:6px;}
+  .filter-row{display:flex;align-items:center;gap:6px;}
+  .filter-btn,.today-btn{border-radius:8px;border:none;font-size:.9em;transition:.3s;}
+  .today-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--accent1),var(--accent2));
+    color:#fff;font-weight:bold;margin-bottom:14px;}
+  .today-btn:hover{transform:translateY(-2px);box-shadow:0 3px 10px rgba(102,126,234,.4);}
+  .filter-btn{flex:1;display:flex;align-items:center;justify-content:flex-start;
+    padding:8px 11px;border:1px solid #ddd;background:#fff;cursor:pointer;}
+  .filter-btn:hover{transform:translateX(4px);box-shadow:0 3px 8px rgba(0,0,0,.1);}
+  .filter-btn.active{background:var(--accent1);color:#fff;border-color:var(--accent1);}
+  .color-indicator{width:15px;height:15px;margin-right:6px;border-radius:3px;border:1px solid rgba(0,0,0,.1);}
+  .next-btn{padding:6px 10px;border:none;border-radius:6px;
+    background:linear-gradient(135deg,var(--accent1),var(--accent2));
+    color:#fff;font-size:.8em;cursor:pointer;white-space:nowrap;}
+  .next-btn:hover{opacity:.9;transform:translateY(-1px);}
+  .calendar-section{flex:1;padding:10px;}
+  .calendar-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .calendar-nav button{background:var(--accent1);color:white;border:none;padding:7px 13px;
+    border-radius:6px;font-size:.9em;cursor:pointer;transition:.3s;}
+  .calendar-nav button:hover{background:var(--accent2);}
+  .calendar-nav h2{color:#333;font-size:1.3em;}
+  .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+  .day-header{text-align:center;font-weight:700;color:var(--accent1);
+    background:#f8f9fa;border-radius:6px;font-size:1.6em;padding:10px 4px;}
+  .day{border:1px solid #e0e0e0;border-radius:6px;padding:4px 5px;
+    display:flex;flex-direction:column;justify-content:space-between;transition:.25s;
+    background:#fff;min-height:70px;} /* +25% height retained */
+  .day:hover{transform:scale(1.03);box-shadow:0 4px 8px rgba(0,0,0,.15);}
+  .day.other-month{opacity:.3;}
+  .day-number{font-size:.9em;font-weight:bold;}
+  .day-events{font-size:.8em;font-weight:600;margin-top:auto;line-height:1.3em;
+    display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+  .day-events .emoji{font-size:1.5em;line-height:1em;}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 10px;
-        }
+  /* Baseline / closed */
+  .day.open-day,.day.clinic-day{background:linear-gradient(135deg,#84fab0 0%,#8fd3f4 100%);}
+  .day.admin-day{background:linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%);}   /* Thu: Closed (Admin Day) */
+  .day.closed-day{background:linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%);}  /* Sun + 1st/2nd/4th/5th Sat */
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
+  /* Special / Major events */
+  .day.closure-day{background:linear-gradient(135deg,#ff6b6b 0%,#c92a2a 100%);color:white;} /* Christmas/NY */
+  .day.easter-day{background:linear-gradient(135deg,#7b4397 0%,#4a148c 100%);color:white;}    /* Easter */
+  .day.publicholiday-day{background:linear-gradient(135deg,#43cea2 0%,#185a9d 100%);color:white;} /* 🏖️ PH */
+  .day.bbq-day{background:linear-gradient(135deg,#ffd93d 0%,#ff6b35 100%);}                    /* BBQ */
+  .day.agm-day{background:linear-gradient(135deg,#99f2c8 0%,#f9f586 50%,#f6d365 100%);color:#222;text-shadow:0 0 6px rgba(255,255,255,0.6);} /* AGM */
+  .day.education-day{background:linear-gradient(135deg,#b2fefa 0%,#0ed2f7 100%);}             /* Education */
+  .day.committee-day{background:linear-gradient(135deg,#ff4fd8 0%,#ff0080 100%);color:white;} /* Committee */
 
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
+  .day.today{border:3px solid var(--accent1);box-shadow:0 0 6px rgba(102,126,234,0.6);}
+  .day.hidden{opacity:.15;pointer-events:none;}
 
-        .header h1 {
-            font-size: 1.8em;
-            margin-bottom: 5px;
-        }
+  /* AGM underline polish (retained) */
+  .agm-label{position:relative;display:inline-block;}
+  .agm-label::after{content:"";position:absolute;left:0;bottom:-2px;width:100%;height:2px;
+    background:linear-gradient(90deg,#fff176,#f57c00);animation:agm-underline 2s infinite alternate;}
+  @keyframes agm-underline{from{transform:scaleX(0);opacity:.3;}to{transform:scaleX(1);opacity:1;}}
 
-        .header p {
-            font-size: 0.9em;
-        }
-
-        .main-content {
-            display: flex;
-        }
-
-        .sidebar {
-            width: 280px;
-            background: #f8f9fa;
-            padding: 20px;
-            border-right: 2px solid #e0e0e0;
-        }
-
-        .sidebar h2 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .filter-group {
-            margin-bottom: 10px;
-        }
-
-        .filter-btn {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            padding: 10px 12px;
-            border: 2px solid #ddd;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9em;
-            margin-bottom: 8px;
-        }
-
-        .filter-btn:hover {
-            transform: translateX(5px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .filter-btn.active {
-            border-color: #667eea;
-            background: #667eea;
-            color: white;
-        }
-
-        .today-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: bold;
-            margin-bottom: 20px;
-            transition: all 0.3s;
-        }
-
-        .today-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-        }
-
-        .color-indicator {
-            width: 18px;
-            height: 18px;
-            border-radius: 4px;
-            margin-right: 8px;
-            border: 2px solid rgba(0,0,0,0.1);
-            flex-shrink: 0;
-        }
-
-        .calendar-section {
-            flex: 1;
-            padding: 20px;
-        }
-
-        .calendar-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            gap: 10px;
-        }
-
-        .calendar-nav button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.3s;
-        }
-
-        .calendar-nav button:hover {
-            background: #764ba2;
-            transform: translateY(-2px);
-        }
-
-        .calendar-nav h2 {
-            color: #333;
-            font-size: 1.5em;
-        }
-
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-        }
-
-        .day-header {
-            text-align: center;
-            font-weight: bold;
-            color: #667eea;
-            padding: 10px 5px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            font-size: 0.9em;
-        }
-
-        .day {
-            aspect-ratio: 1;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            background: white;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .day:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            z-index: 10;
-        }
-
-        .day.other-month {
-            opacity: 0.3;
-        }
-
-        .day.open-day {
-            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-            border-color: #84fab0;
-        }
-
-        .day.bbq-day {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            border-color: #fa709a;
-        }
-
-        .day.agm-day {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            border-color: #a8edea;
-        }
-
-        .day.admin-day {
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            border-color: #fcb69f;
-        }
-
-        .day.closed-day {
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            border-color: #fcb69f;
-        }
-
-        .day.bbq-day {
-            background: linear-gradient(135deg, #ffd93d 0%, #ff6b35 100%);
-            border-color: #ffd93d;
-        }
-
-        .day.closure-day {
-            background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);
-            border-color: #ff6b6b;
-            color: white;
-        }
-
-        .day.closure-day .day-number,
-        .day.closure-day .day-events {
-            color: white;
-        }
-
-        .day.hidden {
-            opacity: 0.2;
-            pointer-events: none;
-        }
-
-        .day-number {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .day-events {
-            margin-top: auto;
-            font-size: 0.75em;
-            color: #333;
-            font-weight: 600;
-        }
-
-        .legend {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .legend h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .legend-color {
-            width: 30px;
-            height: 30px;
-            border-radius: 5px;
-            margin-right: 10px;
-        }
-
-        @media (max-width: 1024px) {
-            .main-content {
-                flex-direction: column;
-            }
-            .sidebar {
-                width: 100%;
-                border-right: none;
-                border-bottom: 2px solid #e0e0e0;
-            }
-            .calendar {
-                gap: 5px;
-            }
-            .day {
-                padding: 5px;
-            }
-            .day-number {
-                font-size: 0.9em;
-            }
-            .day-events {
-                font-size: 0.6em;
-            }
-        }
-
-        @media (max-width: 640px) {
-            body {
-                padding: 5px;
-            }
-            .header h1 {
-                font-size: 1.3em;
-            }
-            .header p {
-                font-size: 0.8em;
-            }
-            .calendar-nav h2 {
-                font-size: 1.1em;
-            }
-            .calendar-nav button {
-                padding: 8px 12px;
-                font-size: 0.8em;
-            }
-            .day-header {
-                font-size: 0.75em;
-                padding: 8px 3px;
-            }
-            .calendar {
-                gap: 3px;
-            }
-            .day {
-                padding: 3px;
-            }
-            .day-number {
-                font-size: 0.8em;
-            }
-            .day-events {
-                font-size: 0.55em;
-            }
-        }
-    </style>
+  @media(max-width:600px){
+    .day-header{font-size:1em;padding:6px 2px;}
+    .day-number{font-size:.7em;}
+    .day-events{font-size:.6em;}
+    .day-events .emoji{font-size:1em;}
+    .calendar-nav h2{font-size:1em;}
+    .today-btn,.filter-btn{font-size:.8em;padding:6px;}
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🏥 Ileostomy Association Calendar</h1>
-            <p>Supporting our community with care and compassion</p>
+<div class="container">
+  <div class="header">
+    <h1>🏥 Ileostomy Association Calendar</h1>
+    <p>Supporting our community with care and compassion</p>
+  </div>
+  <div class="main-content">
+    <div class="sidebar">
+      <h2>Filter Events</h2>
+      <button class="today-btn" id="todayBtn">📅 Back to Today</button>
+
+      <div class="filter-group">
+        <!-- Per-month toggles -->
+        <button class="filter-btn" data-filter="open">
+          <span class="color-indicator" style="background:linear-gradient(135deg,#84fab0,#8fd3f4)"></span>🏠 Open
+        </button>
+        <button class="filter-btn" data-filter="clinic">
+          <span class="color-indicator" style="background:linear-gradient(135deg,#84fab0,#8fd3f4)"></span>👩‍⚕️ Open/Clinic
+        </button>
+
+        <!-- BBQ + Next -->
+        <div class="filter-row">
+          <button class="filter-btn" data-filter="bbq">
+            <span class="color-indicator" style="background:linear-gradient(135deg,#ffd93d,#ff6b35)"></span>🍔 Paul Martin BBQ
+          </button>
+          <button class="next-btn" id="nextBBQ">Next →</button>
         </div>
-        
-        <div class="main-content">
-            <div class="sidebar">
-                <h2>Filter Events</h2>
-                <button class="today-btn" id="todayBtn">📅 Back to Today</button>
-                <div class="filter-group">
-                    <button class="filter-btn" data-filter="open">
-                        <span class="color-indicator" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);"></span>
-                        Open Days
-                    </button>
-                    <button class="filter-btn" data-filter="bbq">
-                        <span class="color-indicator" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></span>
-                        Paul Martin BBQ
-                    </button>
-                    <button class="filter-btn" data-filter="agm">
-                        <span class="color-indicator" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);"></span>
-                        AGM
-                    </button>
-                    <button class="filter-btn" data-filter="admin">
-                        <span class="color-indicator" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);"></span>
-                        Admin Day (Closed)
-                    </button>
-                    <button class="filter-btn" data-filter="closure">
-                        <span class="color-indicator" style="background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);"></span>
-                        Xmas/NY Closure
-                    </button>
-                </div>
-                
-                <div class="legend">
-                    <h3>Event Details</h3>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);"></div>
-                        <div>
-                            <strong>Open Days</strong><br>
-                            Mon-Wed, Fri<br>
-                            1st & 3rd Sat
-                        </div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
-                        <div>
-                            <strong>BBQ</strong><br>
-                            Quarterly<br>
-                            1st Sunday
-                        </div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);"></div>
-                        <div>
-                            <strong>AGM</strong><br>
-                            Annual Meeting
-                        </div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);"></div>
-                        <div>
-                            <strong>Admin Day</strong><br>
-                            Thursday<br>
-                            Closed
-                        </div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);"></div>
-                        <div>
-                            <strong>Holiday Closure</strong><br>
-                            Dec 25 - Jan 2<br>
-                            (or 1st weekday)
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="calendar-section">
-                <div class="calendar-nav">
-                    <button id="prevMonth">← Previous</button>
-                    <h2 id="monthYear"></h2>
-                    <button id="nextMonth">Next →</button>
-                </div>
-                
-                <div class="calendar" id="calendar"></div>
-            </div>
+
+        <!-- Committee + Next -->
+        <div class="filter-row">
+          <button class="filter-btn" data-filter="committee">
+            <span class="color-indicator" style="background:linear-gradient(135deg,#ff4fd8,#ff0080)"></span>🧑‍💼 Committee
+          </button>
+          <button class="next-btn" id="nextCommittee">Next →</button>
         </div>
+
+        <!-- Public Holidays + Next -->
+        <div class="filter-row">
+          <button class="filter-btn" data-filter="publicholiday">
+            <span class="color-indicator" style="background:linear-gradient(135deg,#43cea2,#185a9d)"></span>🏖️ Public Holidays
+          </button>
+          <button class="next-btn" id="nextPublicHoliday">Next →</button>
+        </div>
+
+        <!-- Education Days + Next -->
+        <div class="filter-row">
+          <button class="filter-btn" data-filter="education">
+            <span class="color-indicator" style="background:linear-gradient(135deg,#b2fefa,#0ed2f7)"></span>🎓 Education Days
+          </button>
+          <button class="next-btn" id="nextEducation">Next →</button>
+        </div>
+
+        <!-- Remaining per-month toggles -->
+        <button class="filter-btn" data-filter="agm">
+          <span class="color-indicator" style="background:linear-gradient(135deg,#99f2c8,#f6d365)"></span>🧾 AGM
+        </button>
+        <button class="filter-btn" data-filter="easter">
+          <span class="color-indicator" style="background:linear-gradient(135deg,#7b4397,#4a148c)"></span>🐣 Easter
+        </button>
+        <button class="filter-btn" data-filter="closure">
+          <span class="color-indicator" style="background:linear-gradient(135deg,#ff6b6b,#c92a2a)"></span>🎅 Holiday Closure
+        </button>
+      </div>
     </div>
 
-    <script>
-        let currentDate = new Date();
-        const filters = { open: false, bbq: false, agm: false, admin: false, closure: false };
-        const AGM_DATE = new Date(2025, 8, 15); // September 15, 2025
+    <div class="calendar-section">
+      <div class="calendar-nav">
+        <button id="prevMonth">← Prev</button>
+        <h2 id="monthYear"></h2>
+        <button id="nextMonth">Next →</button>
+      </div>
+      <div class="calendar" id="calendar"></div>
+    </div>
+  </div>
+</div>
 
-        const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+<script>
+/* ========= State ========= */
+let currentDate = new Date();
+const filters = {
+  open:false, clinic:false, bbq:false, committee:false, education:false,
+  agm:false, publicholiday:false, easter:false, closure:false
+};
 
-        function isOpenDay(date) {
-            const day = date.getDay();
-            const dayOfMonth = date.getDate();
-            
-            // Exclude Thursday (4) - that's admin day
-            if (day === 4) return false;
-            
-            // Monday (1), Tuesday (2), Wednesday (3), Friday (5)
-            if ([1, 2, 3, 5].includes(day)) return true;
-            
-            // Saturday (6) - 1st and 3rd of month
-            if (day === 6) {
-                const weekOfMonth = Math.ceil(dayOfMonth / 7);
-                return weekOfMonth === 1 || weekOfMonth === 3;
-            }
-            
-            return false;
-        }
+/* ========= Emojis ========= */
+const emojiMap = {
+  open:"🏠", clinic:"👩‍⚕️", bbq:"🍔", committee:"🧑‍💼", education:"🎓",
+  agm:"🧾", publicholiday:"🏖️", easter:"🐣", admin:"😴", closed:"😴", closure:"🎅"
+};
 
-        function isBBQDay(date) {
-            const month = date.getMonth();
-            const day = date.getDay();
-            const dayOfMonth = date.getDate();
-            
-            // First Sunday of Jan, Apr, Jul, Oct (quarters)
-            if (day === 0 && dayOfMonth <= 7 && [0, 3, 6, 9].includes(month)) {
-                return true;
-            }
-            return false;
-        }
+/* ========= Event Data ========= */
+// BBQ — fixed 2026 dates
+const BBQ_DATES = [
+  new Date(2026,1,15),  // 15 Feb 2026
+  new Date(2026,5,14),  // 14 Jun 2026
+  new Date(2026,10,15), // 15 Nov 2026
+];
 
-        function isAGMDay(date) {
-            return date.toDateString() === AGM_DATE.toDateString();
-        }
+// AGM — single date 2025
+const AGM_DATE = new Date(2025,9,18); // 18 Oct 2025
 
-        function isAdminDay(date) {
-            // Thursday is day 4
-            return date.getDay() === 4;
-        }
+// Committee — 3rd Monday monthly (all years)
+function isCommitteeDay(d){
+  return d.getDay()===1 && Math.ceil(d.getDate()/7)===3;
+}
 
-        function isClosureDay(date) {
-            const year = date.getFullYear();
-            const month = date.getMonth();
-            const day = date.getDate();
-            
-            // December 25 onwards
-            if (month === 11 && day >= 25) return true;
-            
-            // January - find first weekday (Mon-Fri)
-            if (month === 0) {
-                // Always closed Jan 1-2
-                if (day <= 2) return true;
-                
-                // Check if Jan 3-7 to find first weekday
-                if (day <= 7) {
-                    const jan1 = new Date(year, 0, 1);
-                    const jan1Day = jan1.getDay();
-                    
-                    // If Jan 1 is Sat (6), first weekday is Mon Jan 3
-                    // If Jan 1 is Sun (0), first weekday is Mon Jan 2 (but we're already closed til Jan 2)
-                    // So we need to find the first Monday-Friday after Jan 2
-                    const dayOfWeek = date.getDay();
-                    
-                    // If this date is before the first weekday, still closed
-                    if (day === 3 && (jan1Day === 6 || jan1Day === 0)) return false; // Jan 3 is Mon if Jan 1 is Sat
-                    if (day === 3 && jan1Day === 5) return true; // Still closed if Jan 1 is Fri (Jan 3 is Sun)
-                }
-            }
-            
-            return false;
-        }
+// Clinic — every Wednesday and the 3rd Saturday
+function isClinicDay(d){
+  const dow = d.getDay();
+  if (dow===3) return true; // Wed
+  if (dow!==6) return false; // Sat only
+  return Math.ceil(d.getDate()/7)===3; // 3rd Saturday
+}
 
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            
-            document.getElementById('monthYear').textContent = 
-                currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-            
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const daysInPrevMonth = new Date(year, month, 0).getDate();
-            
-            const calendar = document.getElementById('calendar');
-            calendar.innerHTML = '';
-            
-            // Day headers
-            dayHeaders.forEach(day => {
-                const header = document.createElement('div');
-                header.className = 'day-header';
-                header.textContent = day;
-                calendar.appendChild(header);
-            });
-            
-            // Previous month days
-            for (let i = firstDay - 1; i >= 0; i--) {
-                const prevMonthDate = new Date(year, month - 1, daysInPrevMonth - i);
-                const day = document.createElement('div');
-                day.className = 'day other-month';
-                
-                const events = [];
-                let classes = ['day', 'other-month'];
-                let eventType = null;
-                
-                // Check for events in previous month
-                if (isAGMDay(prevMonthDate)) {
-                    classes.push('agm-day');
-                    events.push('AGM');
-                    eventType = 'agm';
-                } else if (isBBQDay(prevMonthDate)) {
-                    classes.push('bbq-day');
-                    events.push('BBQ');
-                    eventType = 'bbq';
-                } else if (isClosureDay(prevMonthDate)) {
-                    classes.push('closure-day');
-                    events.push('Closed');
-                    eventType = 'closure';
-                } else if (isAdminDay(prevMonthDate)) {
-                    classes.push('admin-day');
-                    events.push('Admin/Closed');
-                    eventType = 'admin';
-                } else if (isOpenDay(prevMonthDate)) {
-                    classes.push('open-day');
-                    events.push('Open');
-                    eventType = 'open';
-                }
-                
-                // Apply filter logic
-                const anyFilterActive = Object.values(filters).some(v => v);
-                if (anyFilterActive) {
-                    if (!eventType || !filters[eventType]) {
-                        classes.push('hidden');
-                    }
-                }
-                
-                day.className = classes.join(' ');
-                day.innerHTML = `
-                    <div class="day-number">${daysInPrevMonth - i}</div>
-                    ${events.length > 0 ? `<div class="day-events">${events.join(', ')}</div>` : ''}
-                `;
-                day.addEventListener('click', () => {
-                    currentDate = new Date(year, month - 1, daysInPrevMonth - i);
-                    renderCalendar();
-                });
-                calendar.appendChild(day);
-            }
-            
-            // Current month days
-            for (let i = 1; i <= daysInMonth; i++) {
-                const date = new Date(year, month, i);
-                const day = document.createElement('div');
-                day.className = 'day';
-                
-                const events = [];
-                let classes = ['day'];
-                let eventType = null;
-                
-                // Check in priority order and determine event type
-                if (isAGMDay(date)) {
-                    classes.push('agm-day');
-                    events.push('AGM');
-                    eventType = 'agm';
-                } else if (isBBQDay(date)) {
-                    classes.push('bbq-day');
-                    events.push('BBQ');
-                    eventType = 'bbq';
-                } else if (isClosureDay(date)) {
-                    classes.push('closure-day');
-                    events.push('Closed');
-                    eventType = 'closure';
-                } else if (isAdminDay(date)) {
-                    classes.push('admin-day');
-                    events.push('Admin/Closed');
-                    eventType = 'admin';
-                } else if (isOpenDay(date)) {
-                    classes.push('open-day');
-                    events.push('Open');
-                    eventType = 'open';
-                }
-                
-                // Apply filter logic
-                const anyFilterActive = Object.values(filters).some(v => v);
-                if (anyFilterActive) {
-                    // If filters are active, only show days that match an active filter
-                    if (!eventType || !filters[eventType]) {
-                        classes.push('hidden');
-                    }
-                }
-                
-                day.className = classes.join(' ');
-                day.innerHTML = `
-                    <div class="day-number">${i}</div>
-                    ${events.length > 0 ? `<div class="day-events">${events.join(', ')}</div>` : ''}
-                `;
-                
-                calendar.appendChild(day);
-            }
-            
-            // Next month days
-            const totalCells = calendar.children.length - 7; // Subtract headers
-            const remainingCells = 42 - totalCells - 7; // 6 rows * 7 days
-            for (let i = 1; i <= remainingCells; i++) {
-                const nextMonthDate = new Date(year, month + 1, i);
-                const day = document.createElement('div');
-                
-                const events = [];
-                let classes = ['day', 'other-month'];
-                let eventType = null;
-                
-                // Check for events in next month
-                if (isAGMDay(nextMonthDate)) {
-                    classes.push('agm-day');
-                    events.push('AGM');
-                    eventType = 'agm';
-                } else if (isBBQDay(nextMonthDate)) {
-                    classes.push('bbq-day');
-                    events.push('BBQ');
-                    eventType = 'bbq';
-                } else if (isClosureDay(nextMonthDate)) {
-                    classes.push('closure-day');
-                    events.push('Closed');
-                    eventType = 'closure';
-                } else if (isAdminDay(nextMonthDate)) {
-                    classes.push('admin-day');
-                    events.push('Admin/Closed');
-                    eventType = 'admin';
-                } else if (isOpenDay(nextMonthDate)) {
-                    classes.push('open-day');
-                    events.push('Open');
-                    eventType = 'open';
-                }
-                
-                // Apply filter logic
-                const anyFilterActive = Object.values(filters).some(v => v);
-                if (anyFilterActive) {
-                    if (!eventType || !filters[eventType]) {
-                        classes.push('hidden');
-                    }
-                }
-                
-                day.className = classes.join(' ');
-                day.innerHTML = `
-                    <div class="day-number">${i}</div>
-                    ${events.length > 0 ? `<div class="day-events">${events.join(', ')}</div>` : ''}
-                `;
-                
-                calendar.appendChild(day);
-            }
-        }
+// Public Holidays — 2026 only
+const PUBLIC_HOLIDAYS_2026 = new Set([
+  "2026-01-26","2026-03-09","2026-06-08","2026-10-05"
+]);
 
-        document.getElementById('prevMonth').addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
-        });
+// Education Days — 2026 only (with locations)
+const EDUCATION_2026 = {
+  "2026-05-21":"Murray Bridge",
+  "2026-06-18":"Clare",
+  "2026-07-23":"Metro",
+  "2026-08-20":"Morphett Vale",
+  "2026-09-17":"Mt Gambier",
+  "2026-10-15":"Kadina",
+  "2026-10-29":"Barossa",
+  "2026-11-19":"Whyalla"
+};
 
-        document.getElementById('nextMonth').addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
-        });
+// Christmas/NY closure — every year, Dec 25 → Jan 2 inclusive
+function isChristmasClosure(d){
+  const m=d.getMonth(), day=d.getDate();
+  return (m===11 && day>=25) || (m===0 && day<=2);
+}
 
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const filter = btn.dataset.filter;
-                filters[filter] = !filters[filter];
-                btn.classList.toggle('active');
-                renderCalendar();
-            });
-        });
+/* ========= Easter (Good Fri → Easter Mon) ========= */
+function computus(year){
+  const a=year%19,b=Math.floor(year/100),c=year%100,d=Math.floor(b/4),e=b%4;
+  const f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3);
+  const h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7;
+  const m=Math.floor((a+11*h+22*l)/451);
+  const month=Math.floor((h+l-7*m+114)/31)-1;
+  const day=((h+l-7*m+114)%31)+1;
+  return new Date(year,month,day);
+}
+const EASTER_BLOCKS=[];
+for(let y=2025;y<=2029;y++){
+  const sun=computus(y);
+  const goodFri=new Date(sun); goodFri.setDate(sun.getDate()-2);
+  const easterMon=new Date(sun); easterMon.setDate(sun.getDate()+1);
+  EASTER_BLOCKS.push({start:goodFri,end:easterMon});
+}
+function isWithin(date,start,end){
+  const s=new Date(start.getFullYear(),start.getMonth(),start.getDate());
+  const e=new Date(end.getFullYear(),end.getMonth(),end.getDate());
+  const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());
+  return d>=s && d<=e;
+}
+function isEaster(date){ return EASTER_BLOCKS.some(({start,end})=>isWithin(date,start,end)); }
 
-        document.getElementById('todayBtn').addEventListener('click', () => {
-            currentDate = new Date();
-            renderCalendar();
-        });
+/* ========= Baseline Schedule ========= */
+// Open = Mon/Tue/Wed/Fri + 3rd Saturday (clinic Saturday is open)
+function isOpenDay(d){
+  const dow=d.getDay();
+  if ([1,2,3,5].includes(dow)) return true; // Mon/Tue/Wed/Fri
+  if (dow===6 && Math.ceil(d.getDate()/7)===3) return true; // 3rd Saturday
+  return false;
+}
+// Admin Day = Thursdays only
+function isAdminDay(d){ return d.getDay()===4; }
+// Closed (non-admin) = Sundays and all Saturdays except 3rd
+function isClosedNonAdmin(d){
+  const dow=d.getDay();
+  if (dow===0) return true; // Sunday
+  if (dow!==6) return false; // Only Saturdays
+  const week=Math.ceil(d.getDate()/7);
+  return week!==3; // 1st/2nd/4th/5th Saturdays are closed
+}
 
-        renderCalendar();
-    </script>
+/* ========= Helpers ========= */
+function pad(n){return n.toString().padStart(2,"0");}
+function keyFor(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
+function dateEquals(a,b){return a.toDateString()===b.toDateString();}
+function inBBQ(d){return BBQ_DATES.some(dt=>dateEquals(dt,d));}
+function isPublicHoliday(d){return PUBLIC_HOLIDAYS_2026.has(keyFor(d));}
+function isEducationDay(d){return Boolean(EDUCATION_2026[keyFor(d)]);}
+
+/* ========= Event Types per Day =========
+   Exclusives (closure/easter/publicholiday) first, then majors, then baseline */
+function getEventTypes(date){
+  const types=[];
+  // Special exclusive overrides
+  if (isChristmasClosure(date)) { types.push("closure"); return types; }
+  if (isEaster(date)) { types.push("easter"); return types; }
+  if (isPublicHoliday(date)) { types.push("publicholiday"); return types; }
+
+  // Majors (won't coincide with public holidays per brief)
+  if (dateEquals(date,AGM_DATE)) types.push("agm");
+  if (inBBQ(date)) types.push("bbq");
+  if (isEducationDay(date)) types.push("education");
+  if (isCommitteeDay(date)) types.push("committee");
+
+  // Baseline flags
+  if (isAdminDay(date)) types.push("admin");                 // Thu
+  if (isClosedNonAdmin(date)) types.push("closed");          // Sun + non-3rd Sat
+  if (isOpenDay(date)) types.push("open");                   // Mon/Tue/Wed/Fri + 3rd Sat
+  if (isClinicDay(date)) types.push("clinic");               // Wed + 3rd Sat
+
+  // Ensure closed Saturdays never go uncoloured/labelled
+  if (!types.includes("admin") && isClosedNonAdmin(date) && !types.includes("closed")) {
+    types.push("closed");
+  }
+  return [...new Set(types)];
+}
+
+/* ========= Colour precedence (background class) =========
+   closure > easter > publicholiday > agm > bbq > education > committee > admin > closed > clinic > open */
+function pickClass(types){
+  if (types.includes("closure")) return "closure-day";
+  if (types.includes("easter")) return "easter-day";
+  if (types.includes("publicholiday")) return "publicholiday-day";
+  if (types.includes("agm")) return "agm-day";
+  if (types.includes("bbq")) return "bbq-day";
+  if (types.includes("education")) return "education-day";
+  if (types.includes("committee")) return "committee-day";
+  if (types.includes("admin")) return "admin-day";
+  if (types.includes("closed")) return "closed-day";
+  if (types.includes("clinic")) return "clinic-day";
+  if (types.includes("open")) return "open-day";
+  return "";
+}
+
+/* ========= Labels =========
+   - closure/easter/publicholiday: single-label or emoji-only rule below
+   - education: "Education: <Place>"
+   - committee: "Committee"
+   - agm: "AGM"
+   - admin: "Closed (Admin Day)"
+   - closed: "Closed"
+   - clinic/open appended when not overridden by special/publicholiday */
+function getEventLabel(types,date){
+  const key=keyFor(date);
+
+  // Special days show emoji-only (no text)
+  if (types.includes("closure") || types.includes("easter")) return "";
+
+  // Public Holiday: single label
+  if (types.includes("publicholiday")) return "Public Holiday";
+
+  const parts=[];
+  if (types.includes("bbq")) parts.push("BBQ");
+  if (types.includes("agm")) parts.push("AGM");
+  if (types.includes("education")) parts.push(`Education: ${EDUCATION_2026[key]}`);
+  if (types.includes("committee")) parts.push("Committee");
+  if (types.includes("clinic")) parts.push("Open/Clinic");
+  else if (types.includes("open")) parts.push("Open");
+  if (types.includes("admin")) parts.push("Closed (Admin Day)");
+  if (types.includes("closed")) parts.push("Closed");
+
+  const seen=new Set();
+  return parts.filter(p=>!seen.has(p) && seen.add(p)).join("/");
+}
+
+/* ========= Emoji rendering =========
+   - closure/easter/publicholiday: exclusive single emoji
+   - otherwise, show all relevant distinct emojis (includes 😴 for admin/closed) */
+function buildEmojiHTML(types){
+  if (types.includes("closure")) return `<span class="emoji">${emojiMap["closure"]}</span>`;
+  if (types.includes("easter"))  return `<span class="emoji">${emojiMap["easter"]}</span>`;
+  if (types.includes("publicholiday")) return `<span class="emoji">${emojiMap["publicholiday"]}</span>`;
+
+  const list=[];
+  const already=new Set();
+  const order = ["bbq","agm","education","committee","clinic","open","admin","closed"]; // stable, readable order
+  for (const t of order){
+    if (types.includes(t)){
+      const em = emojiMap[t];
+      if (em && !already.has(em)){
+        list.push(`<span class="emoji">${em}</span>`);
+        already.add(em);
+      }
+    }
+  }
+  return list.join(" ");
+}
+
+/* ========= Rendering ========= */
+const dayHeaders=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+function renderCalendar(){
+  const y=currentDate.getFullYear(), m=currentDate.getMonth();
+  document.getElementById("monthYear").textContent=currentDate.toLocaleDateString("en-US",{month:"long",year:"numeric"});
+
+  const firstDay=new Date(y,m,1).getDay();
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const prevDays=new Date(y,m,0).getDate();
+  const cal=document.getElementById("calendar"); cal.innerHTML="";
+
+  // headers
+  dayHeaders.forEach(d=>{
+    const h=document.createElement("div");
+    h.className="day-header";
+    h.textContent=d;
+    cal.appendChild(h);
+  });
+
+  const anyFilterActive = Object.values(filters).some(v=>v);
+
+  function makeDay(date,offset=0){
+    const types=getEventTypes(date);
+    const cls=["day"];
+    const colourClass=pickClass(types);
+    if (colourClass) cls.push(colourClass);
+    if (offset!==0) cls.push("other-month");
+    if (date.toDateString()===new Date().toDateString()) cls.push("today");
+
+    // Filter visibility applies only for the displayed month
+    let visible=true;
+    if (anyFilterActive && offset===0){
+      const matches = Object.entries(filters).some(([t,on])=>on && types.includes(t));
+      if (!matches) visible=false;
+    }
+    if (!visible) cls.push("hidden");
+
+    const label=getEventLabel(types,date);
+    const emojiHTML=buildEmojiHTML(types);
+
+    const d=document.createElement("div");
+    d.className=cls.join(" ");
+    d.innerHTML =
+      `<div class="day-number">${date.getDate()}</div>` +
+      ((emojiHTML || label) ? `<div class="day-events">${emojiHTML}${label?` ${label}`:""}</div>` : "");
+    return d;
+  }
+
+  // prev spill
+  for(let i=firstDay-1;i>=0;i--) cal.appendChild(makeDay(new Date(y,m-1,prevDays-i),-1));
+  // current month
+  for(let i=1;i<=daysInMonth;i++) cal.appendChild(makeDay(new Date(y,m,i),0));
+  // next spill to fill 6 rows (7 headers + 42 cells total)
+  const total=cal.children.length-7;
+  for(let i=1;i<=42-total-7;i++) cal.appendChild(makeDay(new Date(y,m+1,i),1));
+}
+
+/* ========= Smart Next (12 months) ========= */
+function findNextDate(predicate,maxMonths=12){
+  for(let off=1; off<=maxMonths; off++){
+    const test=new Date(currentDate);
+    test.setMonth(currentDate.getMonth()+off);
+    const days=new Date(test.getFullYear(),test.getMonth()+1,0).getDate();
+    for(let d=1; d<=days; d++){
+      const dt=new Date(test.getFullYear(),test.getMonth(),d);
+      if (predicate(dt)) return test;
+    }
+  }
+  return null;
+}
+
+/* ========= Controls ========= */
+document.getElementById("prevMonth").onclick=()=>{ currentDate.setMonth(currentDate.getMonth()-1); renderCalendar(); };
+document.getElementById("nextMonth").onclick=()=>{ currentDate.setMonth(currentDate.getMonth()+1); renderCalendar(); };
+
+document.getElementById("todayBtn").onclick=()=>{
+  currentDate=new Date();
+  for(const f in filters) filters[f]=false;
+  document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
+  renderCalendar();
+};
+
+// Per-month filter toggles (no month jump)
+document.querySelectorAll(".filter-btn").forEach(btn=>{
+  const f=btn.dataset.filter;
+  if(!f) return; // skip Next buttons
+  btn.addEventListener("click",()=>{
+    filters[f]=!filters[f];
+    btn.classList.toggle("active");
+    renderCalendar();
+  });
+});
+
+// “Next →” buttons (12-month scan)
+document.getElementById("nextBBQ").onclick=()=>{
+  const m=findNextDate(d=>inBBQ(d),12); if(m){ currentDate=m; renderCalendar(); }
+};
+document.getElementById("nextCommittee").onclick=()=>{
+  const m=findNextDate(d=>isCommitteeDay(d),12); if(m){ currentDate=m; renderCalendar(); }
+};
+document.getElementById("nextPublicHoliday").onclick=()=>{
+  const m=findNextDate(d=>isPublicHoliday(d),12); if(m){ currentDate=m; renderCalendar(); }
+};
+document.getElementById("nextEducation").onclick=()=>{
+  const m=findNextDate(d=>isEducationDay(d),12); if(m){ currentDate=m; renderCalendar(); }
+};
+
+renderCalendar();
+</script>
 </body>
 </html>

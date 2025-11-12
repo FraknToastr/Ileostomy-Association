@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Ileostomy Association Calendar — v9.3a</title>
+<title>Ileostomy Association Calendar — v9.4</title>
 <style>
   :root { --accent1:#667eea; --accent2:#764ba2; }
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -162,7 +162,6 @@
           </button>
           <button class="next-btn" id="nextClosure">Next →</button>
         </div>
-
       </div>
     </div>
 
@@ -200,7 +199,9 @@ const BBQ_DATES = [
   new Date(2026,5,14),  // 14 Jun 2026
   new Date(2026,10,15)  // 15 Nov 2026
 ];
-const AGM_DATE = new Date(2025,9,18); // 18 Oct 2025
+
+/* AGM moved to 18 Oct 2026 */
+const AGM_DATE = new Date(2026,9,18); // 18 Oct 2026
 
 function isCommitteeDay(d){ return d.getDay()===1 && Math.ceil(d.getDate()/7)===3; }
 function isClinicDay(d){ const dow=d.getDay(); if(dow===3) return true; if(dow!==6) return false; return Math.ceil(d.getDate()/7)===3; }
@@ -250,7 +251,7 @@ function getEventTypes(date){
   if(isOpenDay(date))         types.push("open");
   if(isClinicDay(date))       types.push("clinic");
 
-  // Ensure closed Saturdays never slip through
+  // Ensure closed Saturdays/Sundays never slip through
   if(!types.includes("admin") && isClosedNonAdmin(date) && !types.includes("closed")) types.push("closed");
   return [...new Set(types)];
 }
@@ -260,7 +261,7 @@ function pickClass(types){
   if(types.includes("closure"))       return "closure-day";
   if(types.includes("easter"))        return "easter-day";
   if(types.includes("publicholiday")) return "publicholiday-day";
-  if(types.includes("agm"))           return "agm-day";
+  if(types.includes("agm"))           return "agm-day";          /* AGM colour dominates */
   if(types.includes("bbq"))           return "bbq-day";
   if(types.includes("education"))     return "education-day";
   if(types.includes("committee"))     return "committee-day";
@@ -271,14 +272,16 @@ function pickClass(types){
   return "";
 }
 
-/* Labels (Easter + Christmas/New Years now labeled) */
+/* Labels (Easter + Christmas/New Years labeled; AGM shows alongside Closed if present) */
 function getEventLabel(types,date){
   const key=keyFor(date);
+
   if(types.includes("closure")) return "Christmas/New Years";
   if(types.includes("easter"))  return "Easter";
   if(types.includes("publicholiday")) return "Public Holiday";
 
   const parts=[];
+  // Order ensures "AGM/Closed" when both present
   if(types.includes("bbq"))       parts.push("BBQ");
   if(types.includes("agm"))       parts.push("AGM");
   if(types.includes("education")) parts.push(`Education: ${EDUCATION_2026[key]}`);
@@ -292,7 +295,7 @@ function getEventLabel(types,date){
   return parts.filter(p=>!seen.has(p)&&seen.add(p)).join("/");
 }
 
-/* Emojis */
+/* Emojis (show all distinct; AGM + Closed will show 🧾 + 😴) */
 function buildEmojiHTML(types){
   if(types.includes("closure"))       return `<span class="emoji">${emojiMap["closure"]}</span>`;
   if(types.includes("easter"))        return `<span class="emoji">${emojiMap["easter"]}</span>`;

@@ -48,7 +48,10 @@
         display: block;
     }
 
-    input[type="text"], input[type="file"], select, input[type="range"] {
+    input[type="text"],
+    input[type="file"],
+    select,
+    input[type="range"] {
         width: 100%;
         padding: 10px;
         margin-top: 6px;
@@ -56,6 +59,9 @@
         border: 1px solid var(--input-border);
         background: var(--input-bg);
         color: var(--text);
+        box-sizing: border-box;
+        max-width: 100%;
+        display: block;
     }
 
     .color-row { display: flex; gap: 10px; }
@@ -101,7 +107,7 @@
     <input id="qrInput" type="text" placeholder="Enter text or URL">
 
     <label>Logo (optional)</label>
-    <input id="logoInput" type="file" accept="image/*" onchange="drawLogoOnly()">
+    <input id="logoInput" type="file" accept="image/*" onchange="drawLogoAndSafeZone()">
 
     <label>Error Correction Level</label>
     <select id="qrLevel">
@@ -123,10 +129,10 @@
     </div>
 
     <label>Logo Size (% of QR)</label>
-    <input id="logoSize" type="range" min="10" max="30" value="20" oninput="drawLogoOnly()">
+    <input id="logoSize" type="range" min="10" max="30" value="20" oninput="drawLogoAndSafeZone()">
 
     <label>Safe Zone (px)</label>
-    <input id="safeZone" type="range" min="0" max="20" value="6" oninput="drawLogoOnly()">
+    <input id="safeZone" type="range" min="0" max="40" value="6" oninput="drawLogoAndSafeZone()">
 
     <label>Export Size</label>
     <select id="exportSize">
@@ -144,7 +150,7 @@
     <button onclick="loadStyle()">Load Style</button>
 
     <div class="preview">
-        <canvas id="qrCanvas"></canvas>
+        <canvas id="qrCanvas" width="300" height="300"></canvas>
     </div>
 </div>
 
@@ -152,17 +158,25 @@
     const canvas = document.getElementById("qrCanvas");
     const ctx = canvas.getContext("2d");
 
-    let qr = new QRious({
-        element: canvas,
-        size: 300,
-        value: "",
-        level: "H"
-    });
-
+    const themeToggle = document.getElementById("themeToggle");
     themeToggle.onclick = () => document.body.classList.toggle("dark");
 
+    // Base QR encoder (off the visible canvas)
+    let qr = new QRious({
+        value: "",
+        size: 300,
+        level: "H",
+        foreground: "#000000",
+        background: "#ffffff"
+    });
+
+    function drawBaseQR() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(qr.canvas, 0, 0, canvas.width, canvas.height);
+    }
+
     function generateQR() {
-        const text = qrInput.value.trim();
+        const text = document.getElementById("qrInput").value.trim();
         if (!text) {
             ctx.clearRect(0,0,canvas.width,canvas.height);
             return;
@@ -170,88 +184,121 @@
 
         qr.set({
             value: text,
-            foreground: qrColor.value,
-            background: qrBG.value,
-            level: qrLevel.value
+            foreground: document.getElementById("qrColor").value,
+            background: document.getElementById("qrBG").value,
+            level: document.getElementById("qrLevel").value
         });
 
-        drawLogoOnly();
+        drawLogoAndSafeZone();
     }
 
-    function drawLogoOnly() {
-        const logoFile = logoInput.files[0];
-        if (!logoFile) return;
+    // --- Draw logo + safe zone on preview (called by Generate + sliders + logo change) ---
+    function drawLogoAndSafeZone() {
+        // Always draw the QR first
+        drawBaseQR();
 
-        const logo = new Image();
-        logo.src = URL.createObjectURL(logoFile);
-
-        logo.onload = () => {
-            const pct = Number(logoSize.value) / 100;
-            const safe = Number(safeZone.value);
-
-            const size = canvas.width * pct;
-            const x = (canvas.width - size) / 2;
-            const y = (canvas.height - size) / 2;
-
-            if (safe > 0) {
-                ctx.beginPath();
-                ctx.arc(canvas.width / 2, canvas.height / 2, (size / 2) + safe, 0, Math.PI * 2);
-                ctx.fillStyle = qrBG.value;
-                ctx.fill();
-            }
-
-            ctx.drawImage(logo, x, y, size, size);
-        };
-    }
-
-    // ------------------ PNG EXPORT ------------------
-    function exportPNG() {
-        const targetSize = Number(exportSize.value);
-
-        const off = document.createElement("canvas");
-        off.width = targetSize;
-        off.height = targetSize;
-        const offCtx = off.getContext("2d");
-
-        qr.set({
-            size: targetSize,
-            foreground: qrColor.value,
-            background: qrBG.value,
-            level: qrLevel.value
-        });
-
-        offCtx.drawImage(qr.canvas, 0, 0, targetSize, targetSize);
-
-        const logoFile = logoInput.files[0];
+        const logoInput = document.getElementById("logoInput");
+        const logoFile = logoInput.files && logoInput.files[0];
         if (!logoFile) {
-            downloadCanvas(off, "png");
-            qr.set({ size: 300 });
+            // No logo: nothing else to draw
             return;
         }
 
+        const logoSizeSlider = document.getElementById("logoSize");
+        const safeZoneSlider = document.getElementById("safeZone");
+
         const logo = new Image();
+        logo.onload = function () {
+            // Redraw QR again inside onload to avoid async race
+            drawBaseQR();
+
+            const pct  = Number(logoSizeSlider.value) / 100;
+            const safe = Number(safeZoneSlider.value);
+
+            const size = canvas.width * pct;
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const x  = cx - size / 2;
+            const y  = cy - size / 2;
+
+            // Safe zone: filled circle behind logo
+            if (safe > 0) {
+                ctx.beginPath();
+                ctx.arc(cx, cy, (size / 2) + safe, 0, Math.PI * 2);
+                ctx.fillStyle = document.getElementById("qrBG").value;
+                ctx.fill();
+            }
+
+            // Draw logo in the centre (PNG transparency is naturally respected)
+            ctx.drawImage(logo, x, y, size, size);
+        };
         logo.src = URL.createObjectURL(logoFile);
+    }
 
-        logo.onload = () => {
-            const pct = Number(logoSize.value) / 100;
-            const safe = Number(safeZone.value);
+    // --- PNG export ---
+    function exportPNG() {
+        const exportSize = Number(document.getElementById("exportSize").value);
+        const logoInput  = document.getElementById("logoInput");
+        const logoFile   = logoInput.files && logoInput.files[0];
 
-            const size = targetSize * pct;
-            const x = (targetSize - size) / 2;
-            const y = (targetSize - size) / 2;
+        const off = document.createElement("canvas");
+        off.width = exportSize;
+        off.height = exportSize;
+        const offCtx = off.getContext("2d");
+
+        // Render QR at export resolution
+        qr.set({
+            size: exportSize,
+            value: document.getElementById("qrInput").value.trim(),
+            foreground: document.getElementById("qrColor").value,
+            background: document.getElementById("qrBG").value,
+            level: document.getElementById("qrLevel").value
+        });
+
+        offCtx.drawImage(qr.canvas, 0, 0, exportSize, exportSize);
+
+        if (!logoFile) {
+            downloadCanvas(off, "png");
+            // restore preview size
+            qr.set({ size: 300 });
+            drawLogoAndSafeZone();
+            return;
+        }
+
+        const logoSizeSlider = document.getElementById("logoSize");
+        const safeZoneSlider = document.getElementById("safeZone");
+
+        const logo = new Image();
+        logo.onload = function () {
+            // Redraw QR at export size (safety for async)
+            offCtx.clearRect(0, 0, exportSize, exportSize);
+            offCtx.drawImage(qr.canvas, 0, 0, exportSize, exportSize);
+
+            const pct  = Number(logoSizeSlider.value) / 100;
+            const safe = Number(safeZoneSlider.value);
+
+            const size = exportSize * pct;
+            const cx   = exportSize / 2;
+            const cy   = exportSize / 2;
+            const x    = cx - size / 2;
+            const y    = cy - size / 2;
 
             if (safe > 0) {
                 offCtx.beginPath();
-                offCtx.arc(targetSize / 2, targetSize / 2, (size / 2) + safe, 0, Math.PI * 2);
-                offCtx.fillStyle = qrBG.value;
+                offCtx.arc(cx, cy, (size / 2) + safe, 0, Math.PI * 2);
+                offCtx.fillStyle = document.getElementById("qrBG").value;
                 offCtx.fill();
             }
 
             offCtx.drawImage(logo, x, y, size, size);
 
             downloadCanvas(off, "png");
+
+            // restore preview size & redraw
             qr.set({ size: 300 });
+            generateQR();
         };
+        logo.src = URL.createObjectURL(logoFile);
     }
 
     function downloadCanvas(c, format) {
@@ -261,16 +308,19 @@
         link.click();
     }
 
-    // ------------------ SVG EXPORT ------------------
+    // --- SVG export (no logo – as with your original behaviour) ---
     function exportSVG() {
-        const text = qrInput.value;
-        const size = Number(exportSize.value);
+        const text  = document.getElementById("qrInput").value.trim();
+        const level = document.getElementById("qrLevel").value;
+        const fg    = document.getElementById("qrColor").value;
+        const bg    = document.getElementById("qrBG").value;
+        const size  = Number(document.getElementById("exportSize").value);
 
         const svgQR = new QRious({
             value: text,
-            level: qrLevel.value,
-            foreground: qrColor.value,
-            background: qrBG.value,
+            level: level,
+            foreground: fg,
+            background: bg,
             size: size,
             mime: "image/svg+xml"
         });
@@ -281,15 +331,15 @@
         link.click();
     }
 
-    // ------------------ SAVE / LOAD STYLE ------------------
+    // --- Save / Load style ---
     function saveStyle() {
         const obj = {
-            qrColor: qrColor.value,
-            qrBG: qrBG.value,
-            logoSize: logoSize.value,
-            safeZone: safeZone.value,
-            level: qrLevel.value,
-            exportSize: exportSize.value,
+            qrColor: document.getElementById("qrColor").value,
+            qrBG: document.getElementById("qrBG").value,
+            logoSize: document.getElementById("logoSize").value,
+            safeZone: document.getElementById("safeZone").value,
+            level: document.getElementById("qrLevel").value,
+            exportSize: document.getElementById("exportSize").value,
             theme: document.body.classList.contains("dark")
         };
         localStorage.setItem("qrStyle", JSON.stringify(obj));
@@ -298,14 +348,17 @@
 
     function loadStyle() {
         const obj = JSON.parse(localStorage.getItem("qrStyle"));
-        if (!obj) return alert("No saved style.");
+        if (!obj) {
+            alert("No saved style.");
+            return;
+        }
 
-        qrColor.value = obj.qrColor;
-        qrBG.value    = obj.qrBG;
-        logoSize.value = obj.logoSize;
-        safeZone.value = obj.safeZone;
-        qrLevel.value = obj.level;
-        exportSize.value = obj.exportSize;
+        document.getElementById("qrColor").value    = obj.qrColor;
+        document.getElementById("qrBG").value       = obj.qrBG;
+        document.getElementById("logoSize").value   = obj.logoSize;
+        document.getElementById("safeZone").value   = obj.safeZone;
+        document.getElementById("qrLevel").value    = obj.level;
+        document.getElementById("exportSize").value = obj.exportSize;
 
         if (obj.theme) document.body.classList.add("dark");
         else document.body.classList.remove("dark");
@@ -313,5 +366,6 @@
         generateQR();
     }
 </script>
+
 </body>
 </html>

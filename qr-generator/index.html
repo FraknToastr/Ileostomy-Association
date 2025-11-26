@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Code Generator — Full Features</title>
+
+<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+
+<style>
+    :root {
+        --bg: #f2f2f2;
+        --card: #ffffff;
+        --text: #222;
+        --input-bg: #fff;
+        --input-border: #ccc;
+    }
+    body.dark {
+        --bg: #1b1b1b;
+        --card: #2a2a2a;
+        --text: #eee;
+        --input-bg: #333;
+        --input-border: #555;
+    }
+
+    body {
+        background: var(--bg);
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        color: var(--text);
+    }
+
+    .container {
+        width: 450px;
+        background: var(--card);
+        padding: 20px;
+        border-radius: 14px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+
+    h2 { text-align: center; margin-top: 0; }
+
+    label {
+        font-weight: bold;
+        margin-top: 12px;
+        display: block;
+    }
+
+    input[type="text"], input[type="file"], select, input[type="range"] {
+        width: 100%;
+        padding: 10px;
+        margin-top: 6px;
+        border-radius: 8px;
+        border: 1px solid var(--input-border);
+        background: var(--input-bg);
+        color: var(--text);
+    }
+
+    .color-row { display: flex; gap: 10px; }
+    .color-row div { flex: 1; }
+
+    button {
+        width: 100%;
+        background: #0078ff;
+        padding: 12px;
+        margin-top: 16px;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    button:hover { background: #0060cc; }
+
+    #themeToggle { margin-bottom: 12px; background: #444; }
+
+    .preview {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    canvas {
+        background: var(--card);
+        border-radius: 12px;
+        padding: 10px;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <button id="themeToggle">Toggle Dark/Light</button>
+
+    <h2>QR Code Generator</h2>
+
+    <label>Text or URL</label>
+    <input id="qrInput" type="text" placeholder="Enter text or URL">
+
+    <label>Logo (optional)</label>
+    <input id="logoInput" type="file" accept="image/*" onchange="drawLogoOnly()">
+
+    <label>Error Correction Level</label>
+    <select id="qrLevel">
+        <option value="L">L — Low</option>
+        <option value="M">M — Medium</option>
+        <option value="Q">Q — Quartile</option>
+        <option value="H" selected>H — High</option>
+    </select>
+
+    <div class="color-row">
+        <div>
+            <label>QR Colour</label>
+            <input type="color" id="qrColor" value="#000000">
+        </div>
+        <div>
+            <label>Background</label>
+            <input type="color" id="qrBG" value="#ffffff">
+        </div>
+    </div>
+
+    <label>Logo Size (% of QR)</label>
+    <input id="logoSize" type="range" min="10" max="30" value="20" oninput="drawLogoOnly()">
+
+    <label>Safe Zone (px)</label>
+    <input id="safeZone" type="range" min="0" max="20" value="6" oninput="drawLogoOnly()">
+
+    <label>Export Size</label>
+    <select id="exportSize">
+        <option value="1024">1024 px</option>
+        <option value="2048">2048 px</option>
+        <option value="4096">4096 px</option>
+    </select>
+
+    <button onclick="generateQR()">Generate QR</button>
+
+    <button onclick="exportPNG()">Download PNG</button>
+    <button onclick="exportSVG()">Download SVG</button>
+
+    <button onclick="saveStyle()">Save Style</button>
+    <button onclick="loadStyle()">Load Style</button>
+
+    <div class="preview">
+        <canvas id="qrCanvas"></canvas>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById("qrCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let qr = new QRious({
+        element: canvas,
+        size: 300,
+        value: "",
+        level: "H"
+    });
+
+    themeToggle.onclick = () => document.body.classList.toggle("dark");
+
+    function generateQR() {
+        const text = qrInput.value.trim();
+        if (!text) {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            return;
+        }
+
+        qr.set({
+            value: text,
+            foreground: qrColor.value,
+            background: qrBG.value,
+            level: qrLevel.value
+        });
+
+        drawLogoOnly();
+    }
+
+    function drawLogoOnly() {
+        const logoFile = logoInput.files[0];
+        if (!logoFile) return;
+
+        const logo = new Image();
+        logo.src = URL.createObjectURL(logoFile);
+
+        logo.onload = () => {
+            const pct = Number(logoSize.value) / 100;
+            const safe = Number(safeZone.value);
+
+            const size = canvas.width * pct;
+            const x = (canvas.width - size) / 2;
+            const y = (canvas.height - size) / 2;
+
+            if (safe > 0) {
+                ctx.beginPath();
+                ctx.arc(canvas.width / 2, canvas.height / 2, (size / 2) + safe, 0, Math.PI * 2);
+                ctx.fillStyle = qrBG.value;
+                ctx.fill();
+            }
+
+            ctx.drawImage(logo, x, y, size, size);
+        };
+    }
+
+    // ------------------ PNG EXPORT ------------------
+    function exportPNG() {
+        const targetSize = Number(exportSize.value);
+
+        const off = document.createElement("canvas");
+        off.width = targetSize;
+        off.height = targetSize;
+        const offCtx = off.getContext("2d");
+
+        qr.set({
+            size: targetSize,
+            foreground: qrColor.value,
+            background: qrBG.value,
+            level: qrLevel.value
+        });
+
+        offCtx.drawImage(qr.canvas, 0, 0, targetSize, targetSize);
+
+        const logoFile = logoInput.files[0];
+        if (!logoFile) {
+            downloadCanvas(off, "png");
+            qr.set({ size: 300 });
+            return;
+        }
+
+        const logo = new Image();
+        logo.src = URL.createObjectURL(logoFile);
+
+        logo.onload = () => {
+            const pct = Number(logoSize.value) / 100;
+            const safe = Number(safeZone.value);
+
+            const size = targetSize * pct;
+            const x = (targetSize - size) / 2;
+            const y = (targetSize - size) / 2;
+
+            if (safe > 0) {
+                offCtx.beginPath();
+                offCtx.arc(targetSize / 2, targetSize / 2, (size / 2) + safe, 0, Math.PI * 2);
+                offCtx.fillStyle = qrBG.value;
+                offCtx.fill();
+            }
+
+            offCtx.drawImage(logo, x, y, size, size);
+
+            downloadCanvas(off, "png");
+            qr.set({ size: 300 });
+        };
+    }
+
+    function downloadCanvas(c, format) {
+        const link = document.createElement("a");
+        link.download = `qr_code.${format}`;
+        link.href = c.toDataURL("image/" + format);
+        link.click();
+    }
+
+    // ------------------ SVG EXPORT ------------------
+    function exportSVG() {
+        const text = qrInput.value;
+        const size = Number(exportSize.value);
+
+        const svgQR = new QRious({
+            value: text,
+            level: qrLevel.value,
+            foreground: qrColor.value,
+            background: qrBG.value,
+            size: size,
+            mime: "image/svg+xml"
+        });
+
+        const link = document.createElement("a");
+        link.download = "qr_code.svg";
+        link.href = svgQR.toDataURL();
+        link.click();
+    }
+
+    // ------------------ SAVE / LOAD STYLE ------------------
+    function saveStyle() {
+        const obj = {
+            qrColor: qrColor.value,
+            qrBG: qrBG.value,
+            logoSize: logoSize.value,
+            safeZone: safeZone.value,
+            level: qrLevel.value,
+            exportSize: exportSize.value,
+            theme: document.body.classList.contains("dark")
+        };
+        localStorage.setItem("qrStyle", JSON.stringify(obj));
+        alert("Style saved!");
+    }
+
+    function loadStyle() {
+        const obj = JSON.parse(localStorage.getItem("qrStyle"));
+        if (!obj) return alert("No saved style.");
+
+        qrColor.value = obj.qrColor;
+        qrBG.value    = obj.qrBG;
+        logoSize.value = obj.logoSize;
+        safeZone.value = obj.safeZone;
+        qrLevel.value = obj.level;
+        exportSize.value = obj.exportSize;
+
+        if (obj.theme) document.body.classList.add("dark");
+        else document.body.classList.remove("dark");
+
+        generateQR();
+    }
+</script>
+</body>
+</html>

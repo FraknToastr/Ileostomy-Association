@@ -3,168 +3,140 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Ileostomy Association Calendar — v9.5</title>
+<title>Ileostomy Association Calendar — v9.5a</title>
+
 <style>
-  :root { --accent1:#667eea; --accent2:#764ba2; }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{
-    font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
-    background:linear-gradient(135deg,var(--accent1) 0%,var(--accent2) 100%);
-    min-height:100vh;padding:6px;
-  }
-  .container{max-width:1200px;margin:0 auto;background:#fff;border-radius:12px;
-    box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden;}
-  .header{background:linear-gradient(135deg,var(--accent1) 0%,var(--accent2) 100%);
-    color:#fff;padding:14px;text-align:center;}
-  .header h1{font-size:1.6em;margin-bottom:4px;}
-  .main-content{display:flex;flex-wrap:wrap;}
-  .sidebar{width:260px;background:#f8f9fa;padding:14px;border-right:1px solid #e0e0e0;}
-  .sidebar h2{color:var(--accent1);font-size:1.15em;margin-bottom:10px;}
-  .filter-group{display:flex;flex-direction:column;gap:6px;}
-  .filter-row{display:flex;align-items:center;gap:6px;}
-  .filter-btn,.today-btn{border-radius:8px;border:none;font-size:.9em;transition:.3s;}
-  .today-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--accent1),var(--accent2));
-    color:#fff;font-weight:bold;margin-bottom:14px;}
-  .today-btn:hover{transform:translateY(-2px);box-shadow:0 3px 10px rgba(102,126,234,.4);}
-  .filter-btn{flex:1;display:flex;align-items:center;justify-content:flex-start;
-    padding:8px 11px;border:1px solid #ddd;background:#fff;cursor:pointer;}
-  .filter-btn:hover{transform:translateX(4px);box-shadow:0 3px 8px rgba(0,0,0,.1);}
-  .filter-btn.active{background:var(--accent1);color:#fff;border-color:var(--accent1);}
-  .color-indicator{width:15px;height:15px;margin-right:6px;border-radius:3px;border:1px solid rgba(0,0,0,.1);}
-  .next-btn{padding:6px 10px;border:none;border-radius:6px;
-    background:linear-gradient(135deg,var(--accent1),var(--accent2));
-    color:#fff;font-size:.8em;cursor:pointer;white-space:nowrap;}
-  .next-btn:hover{opacity:.9;transform:translateY(-1px);}
-  .calendar-section{flex:1;padding:10px;}
-  .calendar-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-  .calendar-nav button{background:var(--accent1);color:white;border:none;padding:7px 13px;
-    border-radius:6px;font-size:.9em;cursor:pointer;transition:.3s;}
-  .calendar-nav button:hover{background:var(--accent2);}
-  .calendar-nav h2{color:#333;font-size:1.3em;}
-  .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-  .day-header{text-align:center;font-weight:700;color:var(--accent1);
-    background:#f8f9fa;border-radius:6px;font-size:1.6em;padding:10px 4px;}
-  .day{border:1px solid #e0e0e0;border-radius:6px;padding:4px 5px;
-    display:flex;flex-direction:column;justify-content:space-between;transition:.25s;
-    background:#fff;min-height:70px;} /* +25% height retained */
-  .day:hover{transform:scale(1.03);box-shadow:0 4px 8px rgba(0,0,0,.15);}
-  .day.other-month{opacity:.3;}
-  .day-number{font-size:.9em;font-weight:bold;}
-  .day-events{
-    font-size:.8em;
-    font-weight:600;
-    margin-top:auto;
-    line-height:1.3em;
-    display:flex;
-    flex-direction:column;
-    align-items:flex-start;
-    gap:4px; /* medium spacing */
-  }
+:root{--accent1:#667eea;--accent2:#764ba2}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+  background:linear-gradient(135deg,var(--accent1),var(--accent2));
+  min-height:100vh;padding:6px
+}
+.container{max-width:1200px;margin:0 auto;background:#fff;border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden}
+.header{background:linear-gradient(135deg,var(--accent1),var(--accent2));
+  color:#fff;padding:14px;text-align:center}
+.header h1{font-size:1.6em;margin-bottom:4px}
+.main-content{display:flex;flex-wrap:wrap}
+.sidebar{width:260px;background:#f8f9fa;padding:14px;border-right:1px solid #e0e0e0}
+.sidebar h2{color:var(--accent1);font-size:1.15em;margin-bottom:10px}
+.filter-group{display:flex;flex-direction:column;gap:6px}
+.filter-row{display:flex;align-items:center;gap:6px}
+.filter-btn,.today-btn{border-radius:8px;border:none;font-size:.9em;transition:.3s}
+.today-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--accent1),var(--accent2));
+  color:#fff;font-weight:bold;margin-bottom:14px}
+.today-btn:hover{transform:translateY(-2px);box-shadow:0 3px 10px rgba(102,126,234,.4)}
+.filter-btn{flex:1;display:flex;align-items:center;justify-content:flex-start;
+  padding:8px 11px;border:1px solid #ddd;background:#fff;cursor:pointer}
+.filter-btn:hover{transform:translateX(4px);box-shadow:0 3px 8px rgba(0,0,0,.1)}
+.filter-btn.active{background:var(--accent1);color:#fff;border-color:var(--accent1)}
+.color-indicator{width:15px;height:15px;margin-right:6px;border-radius:3px;border:1px solid rgba(0,0,0,.1)}
+.next-btn{padding:6px 10px;border:none;border-radius:6px;
+  background:linear-gradient(135deg,var(--accent1),var(--accent2));
+  color:#fff;font-size:.8em;cursor:pointer;white-space:nowrap}
+.calendar-section{flex:1;padding:10px}
+.calendar-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.calendar-nav button{background:var(--accent1);color:#fff;border:none;padding:7px 13px;
+  border-radius:6px;font-size:.9em;cursor:pointer}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.day-header{text-align:center;font-weight:700;color:var(--accent1);
+  background:#f8f9fa;border-radius:6px;font-size:1.6em;padding:10px 4px}
+.day{border:1px solid #e0e0e0;border-radius:6px;padding:4px 5px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  background:#fff;min-height:70px}
+.day.other-month{opacity:.3}
+.day-number{font-size:.9em;font-weight:bold}
+.day-events{
+  font-size:.8em;font-weight:600;
+  display:flex;flex-direction:column;align-items:flex-start;
+  gap:4px;margin-top:auto
+}
 
-  /* Baseline / closed */
-  .day.open-day,.day.clinic-day{background:linear-gradient(135deg,#84fab0 0%,#8fd3f4 100%);}
-  .day.admin-day{background:linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%);}   /* Thu: Closed (Admin Day) */
-  .day.closed-day{background:linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%);}  /* Sun + non-3rd Sat */
+/* colours */
+.day.open-day,.day.clinic-day{background:linear-gradient(135deg,#84fab0,#8fd3f4)}
+.day.admin-day,.day.closed-day{background:linear-gradient(135deg,#ffecd2,#fcb69f)}
+.day.closure-day{background:linear-gradient(135deg,#ff6b6b,#c92a2a);color:#fff}
+.day.easter-day{background:linear-gradient(135deg,#7b4397,#4a148c);color:#fff}
+.day.publicholiday-day{background:linear-gradient(135deg,#43cea2,#185a9d);color:#fff}
+.day.bbq-day{background:linear-gradient(135deg,#ffd93d,#ff6b35)}
+.day.agm-day{background:linear-gradient(135deg,#99f2c8,#f9f586,#f6d365)}
+.day.education-day{background:linear-gradient(135deg,#b2fefa,#0ed2f7)}
+.day.committee-day{background:linear-gradient(135deg,#ff4fd8,#ff0080);color:#fff}
+.day.today{border:3px solid var(--accent1)}
 
-  /* Special / Major events */
-  .day.closure-day{background:linear-gradient(135deg,#ff6b6b 0%,#c92a2a 100%);color:white;} /* Christmas/New Years */
-  .day.easter-day{background:linear-gradient(135deg,#7b4397 0%,#4a148c 100%);color:white;}    /* Easter */
-  .day.publicholiday-day{background:linear-gradient(135deg,#43cea2 0%,#185a9d 100%);color:white;} /* 🏖️ Public Holiday */
-  .day.bbq-day{background:linear-gradient(135deg,#ffd93d 0%,#ff6b35 100%);}                    /* BBQ */
-  .day.agm-day{background:linear-gradient(135deg,#99f2c8 0%,#f9f586 50%,#f6d365 100%);color:#222;text-shadow:0 0 6px rgba(255,255,255,0.6);} /* AGM */
-  .day.education-day{background:linear-gradient(135deg,#b2fefa 0%,#0ed2f7 100%);}             /* Education */
-  .day.committee-day{background:linear-gradient(135deg,#ff4fd8 0%,#ff0080 100%);color:white;} /* Committee */
-
-  .day.today{border:3px solid var(--accent1);box-shadow:0 0 6px rgba(102,126,234,0.6);}
-  .day.hidden{opacity:.15;pointer-events:none;}
-
-  /* AGM underline polish (keep, in case you reuse) */
-  .agm-label{position:relative;display:inline-block;}
-  .agm-label::after{content:"";position:absolute;left:0;bottom:-2px;width:100%;height:2px;
-    background:linear-gradient(90deg,#fff176,#f57c00);animation:agm-underline 2s infinite alternate;}
-  @keyframes agm-underline{from{transform:scaleX(0);opacity:.3;}to{transform:scaleX(1);opacity:1;}}
-
-  @media(max-width:600px){
-    .day-header{font-size:1em;padding:6px 2px;}
-    .day-number{font-size:.7em;}
-    .day-events{font-size:.6em;}
-    .calendar-nav h2{font-size:1em;}
-    .today-btn,.filter-btn{font-size:.8em;padding:6px;}
-  }
+@media(max-width:600px){
+  .day-header{font-size:1em}
+  .day-events{font-size:.6em}
+}
 </style>
 </head>
+
 <body>
 <div class="container">
   <div class="header">
     <h1>Ileostomy Association Calendar</h1>
     <p>Supporting our community with care and compassion</p>
   </div>
+
   <div class="main-content">
     <div class="sidebar">
       <h2>Filter Events</h2>
       <button class="today-btn" id="todayBtn">Back to Today</button>
 
       <div class="filter-group">
-        <!-- Per-month toggles -->
         <button class="filter-btn" data-filter="open">
-          <span class="color-indicator" style="background:linear-gradient(135deg,#84fab0,#8fd3f4)"></span>Open
+          <span class="color-indicator" style="background:#84fab0"></span>Open
         </button>
         <button class="filter-btn" data-filter="clinic">
-          <span class="color-indicator" style="background:linear-gradient(135deg,#84fab0,#8fd3f4)"></span>Open/Clinic
+          <span class="color-indicator" style="background:#8fd3f4"></span>Open/Clinic
         </button>
 
-        <!-- BBQ + Next -->
         <div class="filter-row">
           <button class="filter-btn" data-filter="bbq">
-            <span class="color-indicator" style="background:linear-gradient(135deg,#ffd93d,#ff6b35)"></span>Paul Martin BBQ
+            <span class="color-indicator" style="background:#ffd93d"></span>Paul Martin BBQ
           </button>
           <button class="next-btn" id="nextBBQ">Next →</button>
         </div>
 
-        <!-- Committee + Next -->
         <div class="filter-row">
           <button class="filter-btn" data-filter="committee">
-            <span class="color-indicator" style="background:linear-gradient(135deg,#ff4fd8,#ff0080)"></span>Committee
+            <span class="color-indicator" style="background:#ff4fd8"></span>Committee
           </button>
           <button class="next-btn" id="nextCommittee">Next →</button>
         </div>
 
-        <!-- Public Holidays + Next -->
         <div class="filter-row">
           <button class="filter-btn" data-filter="publicholiday">
-            <span class="color-indicator" style="background:linear-gradient(135deg,#43cea2,#185a9d)"></span>Public Holidays
+            <span class="color-indicator" style="background:#43cea2"></span>Public Holidays
           </button>
           <button class="next-btn" id="nextPublicHoliday">Next →</button>
         </div>
 
-        <!-- Education Days + Next -->
         <div class="filter-row">
           <button class="filter-btn" data-filter="education">
-            <span class="color-indicator" style="background:linear-gradient(135deg,#b2fefa,#0ed2f7)"></span>Education Days
+            <span class="color-indicator" style="background:#b2fefa"></span>Education Days
           </button>
           <button class="next-btn" id="nextEducation">Next →</button>
         </div>
 
-        <!-- AGM + Next -->
         <div class="filter-row">
           <button class="filter-btn" data-filter="agm">
-            <span class="color-indicator" style="background:linear-gradient(135deg,#99f2c8,#f6d365)"></span>AGM
+            <span class="color-indicator" style="background:#f6d365"></span>AGM
           </button>
           <button class="next-btn" id="nextAGM">Next →</button>
         </div>
 
-        <!-- Easter + Next -->
         <div class="filter-row">
           <button class="filter-btn" data-filter="easter">
-            <span class="color-indicator" style="background:linear-gradient(135deg,#7b4397,#4a148c)"></span>Easter
+            <span class="color-indicator" style="background:#7b4397"></span>Easter
           </button>
           <button class="next-btn" id="nextEaster">Next →</button>
         </div>
 
-        <!-- Christmas/New Years + Next -->
         <div class="filter-row">
           <button class="filter-btn" data-filter="closure">
-            <span class="color-indicator" style="background:linear-gradient(135deg,#ff6b6b,#c92a2a)"></span>Christmas/New Years
+            <span class="color-indicator" style="background:#ff6b6b"></span>Christmas/New Years
           </button>
           <button class="next-btn" id="nextClosure">Next →</button>
         </div>
@@ -183,336 +155,103 @@
 </div>
 
 <script>
-/* ========= State ========= */
-let currentDate = new Date();
-const filters = {
-  open:false, clinic:false, bbq:false, committee:false, education:false,
-  agm:false, publicholiday:false, easter:false, closure:false
-};
+let currentDate=new Date();
+const filters={open:false,clinic:false,bbq:false,committee:false,education:false,agm:false,publicholiday:false,easter:false,closure:false};
 
-/* ========= Constants ========= */
-const dayHeaders = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const BBQ_DATES=[new Date(2026,1,15),new Date(2026,5,14),new Date(2026,10,15)];
+const AGM_DATE=new Date(2026,9,18);
 
-/* ========= Event Data ========= */
-const BBQ_DATES = [
-  new Date(2026,1,15),  // 15 Feb 2026
-  new Date(2026,5,14),  // 14 Jun 2026
-  new Date(2026,10,15)  // 15 Nov 2026
-];
+const PUBLIC_HOLIDAYS_2026=new Set(["2026-01-26","2026-03-09","2026-06-08","2026-10-05"]);
 
-// AGM is on Sunday 18 Oct 2026
-const AGM_DATE = new Date(2026,9,18); // 18 Oct 2026
-
-function isCommitteeDay(d){ return d.getDay()===1 && Math.ceil(d.getDate()/7)===3; }
-
-function isClinicDay(d){
-  const dow=d.getDay();
-  if(dow===3) return true;        // Wednesdays
-  if(dow!==6) return false;       // only Saturdays beyond this
-  return Math.ceil(d.getDate()/7)===3; // 3rd Saturday
-}
-
-const PUBLIC_HOLIDAYS_2026 = new Set([
-  "2026-01-26","2026-03-09","2026-06-08","2026-10-05"
-]);
-
-const EDUCATION_2026 = {
+/* SURGICAL CHANGE APPLIED HERE */
+const EDUCATION_2026={
   "2026-05-21":"Murray Bridge",
   "2026-06-18":"Clare",
   "2026-07-23":"Metro",
+  "2026-08-06":"Barossa",
   "2026-08-20":"Morphett Vale",
   "2026-09-17":"Mt Gambier",
   "2026-10-15":"Kadina",
-  "2026-10-29":"Barossa",
   "2026-11-19":"Whyalla"
 };
 
-function isChristmasClosure(d){
-  const m=d.getMonth(), day=d.getDate();
-  return (m===11&&day>=25)||(m===0&&day<=2);
+function isCommitteeDay(d){return d.getDay()===1&&Math.ceil(d.getDate()/7)===3}
+function isClinicDay(d){return d.getDay()===3||(d.getDay()===6&&Math.ceil(d.getDate()/7)===3)}
+function isOpenDay(d){return[1,2,3,5].includes(d.getDay())||(d.getDay()===6&&Math.ceil(d.getDate()/7)===3)}
+function isAdminDay(d){return d.getDay()===4}
+function isClosedNonAdmin(d){return d.getDay()===0||(d.getDay()===6&&Math.ceil(d.getDate()/7)!==3)}
+function pad(n){return n.toString().padStart(2,"0")}
+function keyFor(d){return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+function inBBQ(d){return BBQ_DATES.some(x=>x.toDateString()===d.toDateString())}
+function isPublicHoliday(d){return PUBLIC_HOLIDAYS_2026.has(keyFor(d))}
+function isEducationDay(d){return EDUCATION_2026[keyFor(d)]}
+
+function getEventTypes(d){
+  const t=[];
+  if(isPublicHoliday(d))return["publicholiday"];
+  if(d.toDateString()===AGM_DATE.toDateString())t.push("agm");
+  if(inBBQ(d))t.push("bbq");
+  if(isEducationDay(d))t.push("education");
+  if(isCommitteeDay(d))t.push("committee");
+  if(isAdminDay(d))t.push("admin");
+  if(isClosedNonAdmin(d))t.push("closed");
+  if(isClinicDay(d))t.push("clinic");
+  else if(isOpenDay(d))t.push("open");
+  return[...new Set(t)]
 }
 
-/* Easter (Good Fri → Easter Mon) */
-function computus(y){
-  const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4;
-  const f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3);
-  const h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7;
-  const m=Math.floor((a+11*h+22*l)/451);
-  const month=Math.floor((h+l-7*m+114)/31)-1;
-  const day=((h+l-7*m+114)%31)+1;
-  return new Date(y,month,day);
-}
-const EASTER_BLOCKS=[];
-for(let y=2025;y<=2029;y++){
-  const sun=computus(y);
-  const gf=new Date(sun); gf.setDate(sun.getDate()-2);
-  const em=new Date(sun); em.setDate(sun.getDate()+1);
-  EASTER_BLOCKS.push({start:gf,end:em});
-}
-function isWithin(d,s,e){
-  const D=new Date(d.getFullYear(),d.getMonth(),d.getDate());
-  const S=new Date(s.getFullYear(),s.getMonth(),s.getDate());
-  const E=new Date(e.getFullYear(),e.getMonth(),e.getDate());
-  return D>=S&&D<=E;
-}
-function isEaster(d){ return EASTER_BLOCKS.some(({start,end})=>isWithin(d,start,end)); }
-
-/* Baseline schedule */
-function isOpenDay(d){
-  const dow=d.getDay();
-  if([1,2,3,5].includes(dow)) return true; // Mon/Tue/Wed/Fri
-  if(dow===6 && Math.ceil(d.getDate()/7)===3) return true; // 3rd Saturday
-  return false;
-}
-function isAdminDay(d){ return d.getDay()===4; } // Thursdays
-function isClosedNonAdmin(d){
-  const dow=d.getDay();
-  if(dow===0) return true; // Sunday
-  if(dow!==6) return false; // Only Saturdays beyond this
-  const wk=Math.ceil(d.getDate()/7);
-  return wk!==3; // all Saturdays except 3rd
+function pickClass(t){
+  if(t.includes("publicholiday"))return"publicholiday-day";
+  if(t.includes("agm"))return"agm-day";
+  if(t.includes("bbq"))return"bbq-day";
+  if(t.includes("education"))return"education-day";
+  if(t.includes("committee"))return"committee-day";
+  if(t.includes("admin"))return"admin-day";
+  if(t.includes("closed"))return"closed-day";
+  if(t.includes("clinic"))return"clinic-day";
+  if(t.includes("open"))return"open-day";
+  return"";
 }
 
-/* Helpers */
-function pad(n){return n.toString().padStart(2,"0");}
-function keyFor(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
-function dateEquals(a,b){return a.toDateString()===b.toDateString();}
-function inBBQ(d){return BBQ_DATES.some(dt=>dateEquals(dt,d));}
-function isPublicHoliday(d){return PUBLIC_HOLIDAYS_2026.has(keyFor(d));}
-function isEducationDay(d){return Boolean(EDUCATION_2026[keyFor(d)]);}
-
-/* Event typing */
-function getEventTypes(date){
-  const types=[];
-  // exclusive specials
-  if(isChristmasClosure(date)) { types.push("closure"); return types; }
-  if(isEaster(date))           { types.push("easter");  return types; }
-  if(isPublicHoliday(date))    { types.push("publicholiday"); return types; }
-
-  // majors
-  if(dateEquals(date,AGM_DATE)) types.push("agm");
-  if(inBBQ(date))               types.push("bbq");
-  if(isEducationDay(date))      types.push("education");
-  if(isCommitteeDay(date))      types.push("committee");
-
-  // baseline
-  if(isAdminDay(date))        types.push("admin");
-  if(isClosedNonAdmin(date))  types.push("closed");
-  if(isOpenDay(date))         types.push("open");
-  if(isClinicDay(date))       types.push("clinic");
-
-  // belt-and-braces for closed
-  if(!types.includes("admin") && isClosedNonAdmin(date) && !types.includes("closed"))
-    types.push("closed");
-
-  return [...new Set(types)];
-}
-
-/* Colour precedence */
-function pickClass(types){
-  if(types.includes("closure"))       return "closure-day";
-  if(types.includes("easter"))        return "easter-day";
-  if(types.includes("publicholiday")) return "publicholiday-day";
-  if(types.includes("agm"))           return "agm-day";
-  if(types.includes("bbq"))           return "bbq-day";
-  if(types.includes("education"))     return "education-day";
-  if(types.includes("committee"))     return "committee-day";
-  if(types.includes("admin"))         return "admin-day";
-  if(types.includes("closed"))        return "closed-day";
-  if(types.includes("clinic"))        return "clinic-day";
-  if(types.includes("open"))          return "open-day";
-  return "";
-}
-
-/* Hierarchical event lines (no emojis, each label on its own line, left-aligned) */
-function getEventLines(types,date){
-  const key = keyFor(date);
-  const lines = [];
-
-  // 1. Christmas/New Years
-  if(types.includes("closure")){
-    lines.push("Christmas/New Years");
-    return lines;
-  }
-  // 2. Easter
-  if(types.includes("easter")){
-    lines.push("Easter");
-    return lines;
-  }
-  // 3. Public Holiday
-  if(types.includes("publicholiday")){
-    lines.push("Public Holiday");
-    return lines;
-  }
-
-  // 4. AGM
-  if(types.includes("agm")) lines.push("AGM");
-
-  // 5. BBQ
-  if(types.includes("bbq")) lines.push("BBQ");
-
-  // 6. Education
-  if(types.includes("education")) lines.push(`Education: ${EDUCATION_2026[key]}`);
-
-  // 7. Committee
-  if(types.includes("committee")) lines.push("Committee");
-
-  // --- PATCH START: merge open + open/clinic ---
-  if(types.includes("clinic")){
-    // Only show this, never "Open"
-    lines.push("Open/Clinic");
-  } else if(types.includes("open")){
-    lines.push("Open");
-  }
-  // --- PATCH END ---
-
-  // 10. Closed (Admin Day)
-  if(types.includes("admin")) lines.push("Closed (Admin Day)");
-
-  // 11. Closed
-  if(types.includes("closed")) lines.push("Closed");
-
+function getEventLines(t,d){
+  const lines=[];
+  if(t.includes("agm"))lines.push("AGM");
+  if(t.includes("bbq"))lines.push("BBQ");
+  if(t.includes("education"))lines.push(`Education: ${EDUCATION_2026[keyFor(d)]}`);
+  if(t.includes("committee"))lines.push("Committee");
+  if(t.includes("clinic"))lines.push("Open/Clinic");
+  else if(t.includes("open"))lines.push("Open");
+  if(t.includes("admin"))lines.push("Closed (Admin Day)");
+  if(t.includes("closed"))lines.push("Closed");
   return lines;
 }
 
-
-/* Rendering */
 function renderCalendar(){
-  const y=currentDate.getFullYear(), m=currentDate.getMonth();
-  document.getElementById("monthYear").textContent =
-    currentDate.toLocaleDateString("en-US",{month:"long",year:"numeric"});
-
-  const firstDay=new Date(y,m,1).getDay();
-  const daysInMonth=new Date(y,m+1,0).getDate();
-  const prevMonthDays=new Date(y,m,0).getDate();
-
-  const cal=document.getElementById("calendar");
-  cal.innerHTML="";
-
-  // headers
-  dayHeaders.forEach(h=>{
-    const e=document.createElement("div");
-    e.className="day-header";
-    e.textContent=h;
-    cal.appendChild(e);
+  const y=currentDate.getFullYear(),m=currentDate.getMonth();
+  document.getElementById("monthYear").textContent=currentDate.toLocaleDateString("en-US",{month:"long",year:"numeric"});
+  const cal=document.getElementById("calendar");cal.innerHTML="";
+  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(h=>{
+    const e=document.createElement("div");e.className="day-header";e.textContent=h;cal.appendChild(e)
   });
-
-  const anyFilterActive = Object.values(filters).some(v=>v);
-
-  function buildDay(date,offset=0){
-    const types = getEventTypes(date);
-    const cls   = ["day"];
-    const bg    = pickClass(types);
-    if(bg) cls.push(bg);
-    if(offset!==0) cls.push("other-month");
-    if(date.toDateString()===new Date().toDateString()) cls.push("today");
-
-    let visible=true;
-    if(anyFilterActive && offset===0){
-      const matches = Object.entries(filters).some(([t,on])=>on && types.includes(t));
-      if(!matches) visible=false;
-    }
-    if(!visible) cls.push("hidden");
-
-    const lines = getEventLines(types,date);
-
-    const d=document.createElement("div");
-    d.className=cls.join(" ");
-    let eventsHTML = "";
-    if(lines.length){
-      eventsHTML = `<div class="day-events">` +
-        lines.map(l=>`<div>${l}</div>`).join("") +
-        `</div>`;
-    }
-    d.innerHTML = `<div class="day-number">${date.getDate()}</div>` + eventsHTML;
-    return d;
+  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
+  const prev=new Date(y,m,0).getDate();
+  function dayBox(d,o){
+    const t=getEventTypes(d),cls=["day",pickClass(t)];
+    if(o)cls.push("other-month");
+    const div=document.createElement("div");div.className=cls.join(" ");
+    const lines=getEventLines(t,d);
+    div.innerHTML=`<div class="day-number">${d.getDate()}</div>`+
+      (lines.length?`<div class="day-events">${lines.map(l=>`<div>${l}</div>`).join("")}</div>`:"");
+    return div
   }
-
-  // leading spill from previous month
-  for(let i=0;i<firstDay;i++){
-    cal.appendChild(buildDay(new Date(y,m-1,prevMonthDays-firstDay+i+1),-1));
-  }
-  // current month
-  for(let i=1;i<=daysInMonth;i++){
-    cal.appendChild(buildDay(new Date(y,m,i),0));
-  }
-  // trailing spill to reach 6 rows (42 cells of days)
-  const cellsSoFar = cal.children.length - 7; // minus headers
-  const toFill = 42 - cellsSoFar;
-  for(let i=1;i<=toFill;i++){
-    cal.appendChild(buildDay(new Date(y,m+1,i),1));
-  }
+  for(let i=0;i<first;i++)cal.appendChild(dayBox(new Date(y,m-1,prev-first+i+1),1));
+  for(let i=1;i<=days;i++)cal.appendChild(dayBox(new Date(y,m,i),0));
+  while(cal.children.length<49)cal.appendChild(dayBox(new Date(y,m+1,cal.children.length-6),1))
 }
 
-/* Smart “Next →” (12 months ahead) */
-function findNextMonth(predicate,maxMonths=12){
-  for(let off=1; off<=maxMonths; off++){
-    const test=new Date(currentDate);
-    test.setMonth(currentDate.getMonth()+off);
-    const days=new Date(test.getFullYear(),test.getMonth()+1,0).getDate();
-    for(let d=1; d<=days; d++){
-      const dt=new Date(test.getFullYear(),test.getMonth(),d);
-      if(predicate(dt)) return test;
-    }
-  }
-  return null;
-}
-
-/* Controls */
-document.getElementById("prevMonth").onclick=()=>{
-  currentDate.setMonth(currentDate.getMonth()-1);
-  renderCalendar();
-};
-document.getElementById("nextMonth").onclick=()=>{
-  currentDate.setMonth(currentDate.getMonth()+1);
-  renderCalendar();
-};
-document.getElementById("todayBtn").onclick=()=>{
-  currentDate=new Date();
-  for(const f in filters) filters[f]=false;
-  document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
-  renderCalendar();
-};
-
-document.querySelectorAll(".filter-btn").forEach(btn=>{
-  const f=btn.dataset.filter; if(!f) return;
-  btn.addEventListener("click",()=>{
-    filters[f]=!filters[f];
-    btn.classList.toggle("active");
-    renderCalendar();
-  });
-});
-
-/* Next buttons */
-document.getElementById("nextBBQ").onclick=()=>{
-  const m=findNextMonth(d=>inBBQ(d),12);
-  if(m){ currentDate=m; renderCalendar(); }
-};
-document.getElementById("nextCommittee").onclick=()=>{
-  const m=findNextMonth(d=>isCommitteeDay(d),12);
-  if(m){ currentDate=m; renderCalendar(); }
-};
-document.getElementById("nextPublicHoliday").onclick=()=>{
-  const m=findNextMonth(d=>isPublicHoliday(d),12);
-  if(m){ currentDate=m; renderCalendar(); }
-};
-document.getElementById("nextEducation").onclick=()=>{
-  const m=findNextMonth(d=>isEducationDay(d),12);
-  if(m){ currentDate=m; renderCalendar(); }
-};
-document.getElementById("nextAGM").onclick=()=>{
-  const m=findNextMonth(d=>dateEquals(d,AGM_DATE),12);
-  if(m){ currentDate=m; renderCalendar(); }
-};
-document.getElementById("nextEaster").onclick=()=>{
-  const m=findNextMonth(d=>isEaster(d),12);
-  if(m){ currentDate=m; renderCalendar(); }
-};
-document.getElementById("nextClosure").onclick=()=>{
-  const m=findNextMonth(d=>isChristmasClosure(d),12);
-  if(m){ currentDate=m; renderCalendar(); }
-};
-
+document.getElementById("prevMonth").onclick=()=>{currentDate.setMonth(currentDate.getMonth()-1);renderCalendar()}
+document.getElementById("nextMonth").onclick=()=>{currentDate.setMonth(currentDate.getMonth()+1);renderCalendar()}
+document.getElementById("todayBtn").onclick=()=>{currentDate=new Date();renderCalendar()}
 renderCalendar();
 </script>
 </body>

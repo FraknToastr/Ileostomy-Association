@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Ileostomy Association Calendar — v9.7d (Mobile Fork + Toggle Filters + Labels)</title>
+<title>Ileostomy Association Calendar — v9.7i (Device-Based Initial Filters)</title>
 
 <style>
   :root { --accent1:#667eea; --accent2:#764ba2; }
@@ -72,7 +72,7 @@
 
   .calendar{
     display:grid;
-    grid-template-columns:repeat(7, minmax(0, 1fr)); /* even distribution + prevent overflow */
+    grid-template-columns:repeat(7, minmax(0, 1fr));
     gap:3px;
     width:100%;
   }
@@ -80,7 +80,7 @@
     background:#f8f9fa;border-radius:6px;font-size:1.6em;padding:10px 4px;}
   .day{border:1px solid #e0e0e0;border-radius:6px;padding:4px 5px;
     display:flex;flex-direction:column;justify-content:space-between;transition:.25s;
-    background:#fff;min-height:70px;} /* desktop baseline */
+    background:#fff;min-height:70px;}
   .day:hover{transform:scale(1.03);box-shadow:0 4px 8px rgba(0,0,0,.15);}
   .day.other-month{opacity:.3;}
   .day-number{font-size:.9em;font-weight:bold;}
@@ -199,6 +199,7 @@
 </style>
 </head>
 
+<!-- body has no fixed initial class; JS sets initial filter visibility based on device -->
 <body>
 <div class="container">
   <div class="header">
@@ -208,11 +209,10 @@
 
   <div class="main-content">
     <div class="sidebar">
-      <!-- Removed "Filter Events" title -->
 
       <div class="top-controls">
         <button class="today-btn half-btn" id="todayBtn">Back to Today</button>
-        <button class="today-btn half-btn" id="toggleFiltersBtn" type="button">Hide Filters</button>
+        <button class="today-btn half-btn" id="toggleFiltersBtn" type="button">Show Filters</button>
       </div>
 
       <div class="filter-group" id="filterGroup">
@@ -314,8 +314,10 @@ let singleFilterMode = null;
 
 /* ============================================================================
    Constants
+   Monday-first headers + mapping from native JS getDay()
 ============================================================================ */
-const dayHeaders = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const dayHeaders = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+function mondayFirstIndex(jsDay){ return (jsDay + 6) % 7; } // Sun(0)->6, Mon(1)->0 ... Sat(6)->5
 
 /* ============================================================================
    Event Data
@@ -328,7 +330,28 @@ const BBQ_DATES = [
 
 const AGM_DATE = new Date(2026,9,18); // 18 Oct 2026
 
-const PUBLIC_HOLIDAYS_2026 = new Set(["2026-01-26","2026-03-09","2026-06-08","2026-10-05"]);
+/* Public Holidays (SA) through end of 2027
+   - Excludes Easter-related days
+   - Excludes Christmas / New Year-related days (including "additional day" tied to Christmas Day)
+*/
+const PUBLIC_HOLIDAYS = new Set([
+  // 2026
+  "2026-01-26",
+  "2026-03-09",
+  "2026-04-25",
+  "2026-06-08",
+  "2026-10-05",
+  "2026-12-26",
+  "2026-12-28",
+  // 2027
+  "2027-01-26",
+  "2027-03-08",
+  "2027-04-25",
+  "2027-06-14",
+  "2027-10-04",
+  "2027-12-26",
+  "2027-12-28"
+]);
 
 const EDUCATION_2026 = {
   "2026-05-21":"Murray Bridge",
@@ -377,7 +400,7 @@ function keyFor(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.get
 function monthKey(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}`;}
 function dateEquals(a,b){return a.toDateString()===b.toDateString();}
 function inBBQ(d){return BBQ_DATES.some(dt=>dateEquals(dt,d));}
-function isPublicHoliday(d){ return PUBLIC_HOLIDAYS_2026.has(keyFor(d)); }
+function isPublicHoliday(d){ return PUBLIC_HOLIDAYS.has(keyFor(d)); }
 function isEducationDay(d){ return Boolean(EDUCATION_2026[keyFor(d)]); }
 
 /* Christmas/New Years closure */
@@ -453,7 +476,6 @@ function getEventLines(types,date){
   const key = keyFor(date);
   const lines = [];
 
-  /* Christmas/New Years split in the day cell */
   if(types.includes("closure")){
     lines.push("Christmas/New");
     lines.push("Years");
@@ -466,10 +488,8 @@ function getEventLines(types,date){
   if(types.includes("bbq")) lines.push("BBQ");
   if(types.includes("education")) lines.push(`Education: ${EDUCATION_2026[key]}`);
 
-  /* Committee abbreviated */
   if(types.includes("committee")) lines.push("Comm.");
 
-  /* Open/Clinic split across lines */
   if(types.includes("clinic")){
     lines.push("Open");
     lines.push("Clinic");
@@ -519,7 +539,9 @@ function renderCalendar(){
   const todayNow = new Date(); todayNow.setHours(0,0,0,0);
   const todayKey = keyFor(todayNow);
 
-  const firstDay=new Date(y,m,1).getDay();
+  const jsFirstDay = new Date(y,m,1).getDay();        // 0=Sun..6=Sat
+  const firstDay = mondayFirstIndex(jsFirstDay);      // 0=Mon..6=Sun
+
   const daysInMonth=new Date(y,m+1,0).getDate();
   const prevMonthDays=new Date(y,m,0).getDate();
 
@@ -647,7 +669,6 @@ document.getElementById("todayBtn").onclick=()=>{
   clearFocus();
   clearSingleFilterMode();
 
-  /* Back to Today restores all filters (exits single-filter mode). */
   renderCalendar();
 };
 
@@ -699,11 +720,36 @@ document.getElementById("prevEaster").onclick=()=>{ setSingleFilterMode("easter"
 document.getElementById("nextClosure").onclick=()=>{ setSingleFilterMode("closure"); navTo("closure","next",d=>isChristmasClosure(d)); };
 document.getElementById("prevClosure").onclick=()=>{ setSingleFilterMode("closure"); navTo("closure","prev",d=>isChristmasClosure(d)); };
 
+/* ============================================================================
+   Device detection + initial filter panel state
+   Requirement:
+   - Desktop: initial state shows all filter events (button text => "Hide Filters")
+   - Mobile: initial state hides all filter events (button text => "Show Filters")
+============================================================================ */
+function detectMobileDevice(){
+  try{
+    if(navigator.userAgentData && typeof navigator.userAgentData.mobile === "boolean"){
+      return navigator.userAgentData.mobile;
+    }
+  }catch(_e){}
+  const ua = (navigator.userAgent || "").toLowerCase();
+  return /android|iphone|ipad|ipod|iemobile|windows phone|mobile/.test(ua);
+}
+
 /* Initial */
-syncToggleFiltersText();
-applySingleFilterUI();
-renderCalendar();
+(function init(){
+  const isMobile = detectMobileDevice();
+
+  if(isMobile){
+    document.body.classList.add("filters-collapsed");
+  }else{
+    document.body.classList.remove("filters-collapsed");
+  }
+
+  syncToggleFiltersText();
+  applySingleFilterUI();
+  renderCalendar();
+})();
 </script>
 </body>
 </html>
-

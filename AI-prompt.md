@@ -510,6 +510,67 @@ Now produce the full single-file HTML implementation (**FS**) that meets every r
 - Ensure month scan is bounded (**max 12 months**).
 - Include placeholders for nurse Friday clinics and nurse leave blocks, but implement the complete logic.
 
+---
+
+# Spec additions identified during implementation
+
+This section documents clarifications that were not explicitly defined in the original spec, but were required to implement correct behaviour.
+
+## 1) Nurse clinic availability rules (was underspecified)
+The original spec introduced `EXTRA_FRIDAY_CLINICS` + `NURSE_LEAVE_BLOCKS` placeholders, but did not define the actual clinic cadence and the specific leave/return dates.
+
+Add these rules:
+
+- **Clinic cadence (when nurse is available):**
+  - Every **Wednesday**
+  - **3rd Saturday** of each month
+  - **Last Friday** of each month
+- **Leave/return constraint (clinic suppression):**
+  - Nurse last clinic day: **Wednesday 11 Feb 2026**
+  - Nurse leave block (inclusive): **2026-02-12** through **2026-06-30**
+  - Nurse returns: **Wednesday 1 Jul 2026**
+- **Effect of leave:** If a date is within nurse leave, the day may still be `Open` per base rules, but **must not display `Clinic`**.
+
+Note: The original `EXTRA_FRIDAY_CLINICS` structure can remain for rare exceptions, but the standard cadence above must be treated as the default rule set.
+
+## 2) Desktop vs Mobile: single-filter mode scope (ambiguous)
+The spec describes “mobile-friendly fork behaviour” (single-filter mode) but does not explicitly state whether **desktop** should:
+- follow the same single-filter mode rules, or
+- allow **multi-filter** selection.
+
+To avoid ambiguity, explicitly state one of:
+- **Option A:** Single-filter mode applies on **both** mobile and desktop (current implementation), or
+- **Option B:** Single-filter mode is **mobile-only**; desktop allows multiple active filters simultaneously.
+
+## 3) Multi-filter combination semantics (not defined)
+The spec defines filters as boolean states, but does not define how to combine them if multiple are active.
+
+Add an explicit rule such as:
+- **OR semantics:** show days matching **any** active filter, or
+- **AND semantics:** show days matching **all** active filters.
+
+(Current implementation uses **OR semantics**, though single-filter mode usually results in only one active filter.)
+
+## 4) Filter button colour indicators (not stated)
+The spec states “Open and Open/Clinic are the same concept” and that base colours are shared, but it does not explicitly say that the **sidebar colour indicator** for `Open/Clinic` should match `Open`.
+
+Add:
+- The **Open/Clinic** filter button colour indicator must be the **same** as **Open** (since they share the same base day colour theme).
+
+## 5) Header subtitle text (content requirement)
+The presence/absence of secondary header text was not specified. If the repo spec wants to prevent regressions, add:
+
+- Do not display the subtitle text “Mobile + Desktop” in the header (header should show only the main title unless otherwise specified).
+
+## 6) Implementation note (prevent a known filter-state pitfall)
+If the spec includes “implementation notes” sections, add this guardrail:
+
+- If using `Object.create(null)` for filter state maps, do not call `.hasOwnProperty(...)` directly. Use:
+  - `Object.prototype.hasOwnProperty.call(obj, key)`
+  - or use a normal object `{}`.
+This prevents filter logic from silently failing.
+
+
 
   .day-events{font-size:.5em;}
 }

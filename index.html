@@ -50,6 +50,7 @@
             gap: 30px;
         }
 
+        /* --- CARD & LINK NORMALISATION --- */
         .app-card {
             background: white;
             border-radius: 16px;
@@ -57,11 +58,16 @@
             text-align: center;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            text-decoration: none;
-            color: inherit;
             display: flex;
             flex-direction: column;
             position: relative;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .app-card *,
+        .launch-button {
+            text-decoration: none;
         }
 
         .app-card:hover {
@@ -103,19 +109,32 @@
             flex-grow: 1;
         }
 
-        .launch-button {
-            display: inline-block;
+        .button-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
             margin-top: 20px;
-            padding: 12px 30px;
+        }
+
+        .launch-button {
+            padding: 12px 26px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 8px;
             font-weight: 600;
-            transition: opacity 0.3s ease;
+            cursor: pointer;
+            display: inline-block;
         }
 
-        .launch-button:hover {
-            opacity: 0.9;
+        .qr-button {
+            padding: 12px 26px;
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
         }
 
         .mobile-badge {
@@ -130,6 +149,30 @@
             border-radius: 999px;
         }
 
+        /* QR Modal */
+        .qr-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .qr-modal.active {
+            display: flex;
+        }
+
+        .qr-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -142,46 +185,85 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Ileostomy Association</h1>
-            <p>Support Tools & Resources</p>
-        </div>
-
-        <div class="apps-grid">
-            <!-- 1. Calendar -->
-            <a href="https://frakntoastr.github.io/Ileostomy-Association/calendar/index.html" class="app-card">
-                <div class="app-icon icon-standard">📅</div>
-                <h2 class="app-title">Calendar</h2>
-                <p class="app-description">Calendar for Ileostomy Committee.</p>
-                <span class="launch-button">Launch App</span>
-            </a>
-
-            <!-- 2. Mobile Calendar -->
-            <a href="https://frakntoastr.github.io/Ileostomy-Association/mobile-calendar/index.html" class="app-card">
-                <span class="mobile-badge">Recommended on phones</span>
-                <div class="app-icon icon-mobile">📱📅</div>
-                <h2 class="app-title">Mobile Calendar</h2>
-                <p class="app-description">Mobile-optimised calendar designed for quick access on phones.</p>
-                <span class="launch-button">Launch App</span>
-            </a>
-
-            <!-- 3. Support Heatmap -->
-            <a href="https://frakntoastr.github.io/Ileostomy-Association/support-heatmap/index.html" class="app-card">
-                <div class="app-icon icon-standard">🌍</div>
-                <h2 class="app-title">Support Heatmap</h2>
-                <p class="app-description">Find nearest Ostomate support groups and member counts by suburb or locality.</p>
-                <span class="launch-button">Launch App</span>
-            </a>
-
-            <!-- 4. QR Generator -->
-            <a href="https://frakntoastr.github.io/Ileostomy-Association/qr-generator/index.html" class="app-card">
-                <div class="app-icon icon-standard">📱</div>
-                <h2 class="app-title">QR Generator</h2>
-                <p class="app-description">Generate QR codes for events, contacts, and resources.</p>
-                <span class="launch-button">Launch App</span>
-            </a>
-        </div>
+<div class="container">
+    <div class="header">
+        <h1>Ileostomy Association</h1>
+        <p>Support Tools & Resources</p>
     </div>
+
+    <div class="apps-grid">
+
+        <!-- 1. Calendar -->
+        <a href="https://frakntoastr.github.io/Ileostomy-Association/calendar/index.html" class="app-card">
+            <div class="app-icon icon-standard">📅</div>
+            <h2 class="app-title">Calendar</h2>
+            <p class="app-description">Calendar for Ileostomy Committee.</p>
+            <span class="launch-button">Launch App</span>
+        </a>
+
+        <!-- 2. Mobile Calendar -->
+        <div class="app-card">
+            <span class="mobile-badge">Recommended on phones</span>
+            <div class="app-icon icon-mobile">📱📅</div>
+            <h2 class="app-title">Mobile Calendar</h2>
+            <p class="app-description">
+                Mobile-optimised calendar for phones.<br>
+                <strong>QR code available for quick access.</strong>
+            </p>
+
+            <div class="button-row">
+                <a href="https://frakntoastr.github.io/Ileostomy-Association/mobile-calendar/index.html"
+                   class="launch-button">
+                    Launch App
+                </a>
+                <button class="qr-button" id="showQrBtn">
+                    Show QR Code
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. Support Heatmap -->
+        <a href="https://frakntoastr.github.io/Ileostomy-Association/support-heatmap/index.html" class="app-card">
+            <div class="app-icon icon-standard">🌍</div>
+            <h2 class="app-title">Support Heatmap</h2>
+            <p class="app-description">
+                Find nearest Ostomate support groups and member counts by suburb or locality.
+            </p>
+            <span class="launch-button">Launch App</span>
+        </a>
+
+        <!-- 4. QR Generator -->
+        <a href="https://frakntoastr.github.io/Ileostomy-Association/qr-generator/index.html" class="app-card">
+            <div class="app-icon icon-standard">📱</div>
+            <h2 class="app-title">QR Generator</h2>
+            <p class="app-description">
+                Generate QR codes for events, contacts, and resources.
+            </p>
+            <span class="launch-button">Launch App</span>
+        </a>
+
+    </div>
+</div>
+
+<!-- QR Modal -->
+<div class="qr-modal" id="qrModal">
+    <img src="https://frakntoastr.github.io/Ileostomy-Association/assets/qr/mobile-calendar-qr.png"
+         alt="Mobile Calendar QR Code">
+</div>
+
+<script>
+    const showQrBtn = document.getElementById("showQrBtn");
+    const modal = document.getElementById("qrModal");
+
+    showQrBtn.addEventListener("click", () => {
+        modal.classList.add("active");
+    });
+
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.classList.remove("active");
+        }
+    });
+</script>
 </body>
 </html>

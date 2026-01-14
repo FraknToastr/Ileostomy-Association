@@ -260,8 +260,9 @@
     //   * Every Wednesday
     //   * 3rd Saturday of the month
     //   * Last Friday of the month
-    // - Nurse leave: after Wed 11 Feb 2026 through Tue 30 Jun 2026 inclusive
-    // - Nurse returns Wed 1 Jul 2026
+    // - Nurse last working day: Fri 30 Jan 2026
+    // - Nurse leave: 2026-01-31 through 2026-06-30 inclusive
+    // - Nurse returns: Wed 1 Jul 2026 (clinic resumes from next scheduled clinic day)
     // ---------------------------------------------------------------------
     // Kept as a constant set (still supported for any future one-off additions).
     const EXTRA_FRIDAY_CLINICS = new Set([
@@ -270,7 +271,7 @@
 
     // Inclusive blocks. During leave, clinic is suppressed (Open rules remain).
     const NURSE_LEAVE_BLOCKS = [
-      { start: "2026-02-12", end: "2026-06-30" }
+      { start: "2026-01-31", end: "2026-06-30" }
     ];
 
     // ---------------------------------------------------------------------
@@ -456,7 +457,7 @@
       } else {
         activeFilters[key] = true;
 
-        // NEW: If the active filter has NO occurrences in the currently displayed month,
+        // If the active filter has NO occurrences in the currently displayed month,
         // automatically jump forward to the next month (scan up to 12 months).
         // (This does NOT apply focus highlight; focus is reserved for nav arrows.)
         if (!filterHasAnyOccurrenceInMonth(key, currentMonth)) {
@@ -655,7 +656,7 @@
       }
     }
 
-    // NEW helper: do we have any occurrences of a filter in the displayed month?
+    // Helper: do we have any occurrences of a filter in the displayed month?
     function filterHasAnyOccurrenceInMonth(filterKey, monthDate) {
       const y = monthDate.getFullYear();
       const m = monthDate.getMonth();
@@ -939,13 +940,6 @@
     }
 
     // Actual SA public holidays around Christmas/New Year (for public holiday FILTER only):
-    // - Christmas Day: 25 Dec
-    // - Proclamation Day holiday / Boxing Day: 26 Dec
-    // - Additional Proclamation day holiday when 26 Dec falls on weekend:
-    //     * 26 Dec Saturday  -> Monday 28 Dec
-    //     * 26 Dec Sunday    -> Tuesday 28 Dec (because Monday 27 is typically the additional Christmas Day)
-    // - New Year's Day: 1 Jan
-    // - If 25 Dec or 1 Jan fall on Sat/Sun, include the following Monday as a public holiday.
     function buildChristmasNewYearPublicHolidaySet(startYear, endYear) {
       const set = new Set();
       for (let y = startYear; y <= endYear; y++) {

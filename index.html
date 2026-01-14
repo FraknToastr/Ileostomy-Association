@@ -148,12 +148,7 @@
             border-radius: 999px;
         }
 
-        /* Hide ONLY on real phones */
-        .is-phone .hide-on-phone {
-            display: none;
-        }
-
-        /* QR Modals */
+        /* QR Modal */
         .qr-modal {
             position: fixed;
             inset: 0;
@@ -177,18 +172,6 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
         }
     </style>
-
-    <script>
-        (function () {
-            const isPhone =
-                /iPhone|Android.+Mobile|Windows Phone|iPod/i
-                    .test(navigator.userAgent);
-
-            if (isPhone) {
-                document.documentElement.classList.add("is-phone");
-            }
-        })();
-    </script>
 </head>
 <body>
 <div class="container">
@@ -199,28 +182,14 @@
 
     <div class="apps-grid">
 
-        <!-- 0. App Launcher for Phones (hidden on phones) -->
-        <div class="app-card hide-on-phone">
-            <span class="mobile-badge">Recommended on phones</span>
-            <div class="app-icon icon-mobile">📲</div>
-            <h2 class="app-title">App Launcher for Phones</h2>
-            <p class="app-description">
-                Scan to open the Ileostomy Association app launcher on your phone.
-            </p>
-            <div class="button-row">
-                <button class="qr-button" id="showLauncherQrBtn">
-                    Show QR Code
-                </button>
-            </div>
-        </div>
-
-        <!-- 1. Calendar -->
+        <!-- Calendar -->
         <div class="app-card">
             <span class="mobile-badge">Recommended on phones</span>
             <div class="app-icon icon-mobile">📅</div>
             <h2 class="app-title">Calendar</h2>
             <p class="app-description">
-                Mobile-optimised calendar for phones.
+                View upcoming Public Holidays, Education Days, Paul Martin BBQ,
+                Committee meetings, AGM, and Clinic Days.
             </p>
             <div class="button-row">
                 <a href="https://frakntoastr.github.io/Ileostomy-Association/calendar/index-v2.html"
@@ -233,7 +202,7 @@
             </div>
         </div>
 
-        <!-- 2. Support Heatmap -->
+        <!-- Support Heatmap -->
         <a href="https://frakntoastr.github.io/Ileostomy-Association/support-heatmap/index.html"
            class="app-card">
             <div class="app-icon icon-standard">🌍</div>
@@ -244,7 +213,7 @@
             <span class="launch-button">Launch App</span>
         </a>
 
-        <!-- 3. QR Generator -->
+        <!-- QR Generator -->
         <a href="https://frakntoastr.github.io/Ileostomy-Association/qr-generator/index.html"
            class="app-card">
             <div class="app-icon icon-standard">📱</div>
@@ -258,38 +227,24 @@
     </div>
 </div>
 
-<!-- QR Modals -->
-<div class="qr-modal" id="launcherQrModal">
-    <img src="https://frakntoastr.github.io/Ileostomy-Association/assets/qr/IASA-launcher.png"
-         alt="App Launcher QR Code">
-</div>
-
+<!-- Calendar QR Modal -->
 <div class="qr-modal" id="calendarQrModal">
     <img src="https://frakntoastr.github.io/Ileostomy-Association/assets/qr/mobile-calendar-qr.png"
          alt="Calendar QR Code">
 </div>
 
 <script>
-    const launcherBtn = document.getElementById("showLauncherQrBtn");
-    const launcherModal = document.getElementById("launcherQrModal");
-
     const calendarBtn = document.getElementById("showCalendarQrBtn");
     const calendarModal = document.getElementById("calendarQrModal");
 
-    if (launcherBtn) {
-        launcherBtn.addEventListener("click", () =>
-            launcherModal.classList.add("active"));
-    }
+    calendarBtn.addEventListener("click", () => {
+        calendarModal.classList.add("active");
+    });
 
-    calendarBtn.addEventListener("click", () =>
-        calendarModal.classList.add("active"));
-
-    document.querySelectorAll(".qr-modal").forEach(modal => {
-        modal.addEventListener("click", e => {
-            if (e.target === modal) {
-                modal.classList.remove("active");
-            }
-        });
+    calendarModal.addEventListener("click", (e) => {
+        if (e.target === calendarModal) {
+            calendarModal.classList.remove("active");
+        }
     });
 </script>
 </body>

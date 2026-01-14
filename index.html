@@ -1,296 +1,996 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ileostomy Association Apps</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1000px;
-            width: 100%;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 50px;
-            color: white;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .apps-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-        }
-
-        .app-card {
-            background: white;
-            border-radius: 16px;
-            padding: 40px 30px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .app-card *,
-        .launch-button {
-            text-decoration: none;
-        }
-
-        .app-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
-        }
-
-        .app-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 2.5rem;
-            color: white;
-        }
-
-        .icon-standard {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .icon-mobile {
-            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
-        }
-
-        .app-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .app-description {
-            color: #666;
-            line-height: 1.6;
-            font-size: 0.95rem;
-            flex-grow: 1;
-        }
-
-        .button-row {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-
-        .launch-button {
-            padding: 12px 26px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-block;
-        }
-
-        .qr-button {
-            padding: 12px 26px;
-            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
-            color: white;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-        }
-
-        .mobile-badge {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: #2f855a;
-            color: white;
-            padding: 6px 10px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border-radius: 999px;
-        }
-
-        /* Hide ONLY on real phones */
-        .is-phone .hide-on-phone {
-            display: none;
-        }
-
-        /* QR Modals */
-        .qr-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.75);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-
-        .qr-modal.active {
-            display: flex;
-        }
-
-        .qr-modal img {
-            max-width: 90%;
-            max-height: 90%;
-            background: white;
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-        }
-    </style>
-
-    <script>
-        (function () {
-            const isPhone =
-                /iPhone|Android.+Mobile|Windows Phone|iPod/i
-                    .test(navigator.userAgent);
-
-            if (isPhone) {
-                document.documentElement.classList.add("is-phone");
-            }
-        })();
-    </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ileostomy Association Calendar</title>
+  <style>
+    :root { --accent1:#667eea; --accent2:#764ba2; }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+      background:linear-gradient(135deg,var(--accent1) 0%,var(--accent2) 100%);
+      min-height:100vh;padding:6px;
+    }
+    .container{max-width:1200px;margin:0 auto;background:#fff;border-radius:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden;}
+    .header{background:linear-gradient(135deg,var(--accent1) 0%,var(--accent2) 100%);
+      color:#fff;padding:14px;text-align:center;}
+    .header h1{font-size:1.6em;margin-bottom:4px;}
+    .main-content{display:flex;flex-wrap:wrap;}
+    .sidebar{
+      width:320px;background:#f8f9fa;padding:14px;border-right:1px solid #e0e0e0;
+    }
+    .top-controls{
+      display:flex;gap:8px;align-items:center;margin-bottom:12px;
+    }
+    .today-btn{
+      flex:1;border-radius:8px;border:none;font-size:.9em;
+      padding:11px;background:linear-gradient(135deg,var(--accent1),var(--accent2));
+      color:#fff;font-weight:bold;cursor:pointer;transition:.3s;
+    }
+    .today-btn:hover{transform:translateY(-2px);box-shadow:0 3px 10px rgba(102,126,234,.4);}
+    .today-btn.half-btn{flex:1;width:50%;}
+    .filter-group{display:flex;flex-direction:column;gap:6px;}
+    .filter-row{display:flex;align-items:center;gap:6px;}
+    .filter-btn{
+      flex:1;display:flex;align-items:center;justify-content:flex-start;
+      padding:8px 11px;border-radius:8px;
+      border:1px solid #ddd;background:#fff;cursor:pointer;
+      font-size:.9em;transition:.3s;white-space:nowrap;
+    }
+    .filter-btn:hover{transform:translateX(4px);box-shadow:0 3px 8px rgba(0,0,0,.1);}
+    .filter-btn.active{background:var(--accent1);color:#fff;border-color:var(--accent1);}
+    .filter-btn.allow-wrap{white-space:normal; line-height:1.15em;}
+    .color-indicator{width:15px;height:15px;margin-right:6px;border-radius:3px;border:1px solid rgba(0,0,0,.1);}
+    .nav-btn{
+      width:34px;height:34px;
+      display:flex;align-items:center;justify-content:center;
+      padding:0;border:none;border-radius:6px;
+      background:linear-gradient(135deg,var(--accent1),var(--accent2));
+      color:#fff;font-size:1.1em;cursor:pointer;white-space:nowrap;transition:.2s;
+    }
+    .nav-btn:hover{opacity:.9;transform:translateY(-1px);}
+    .calendar-section{flex:1;padding:10px;}
+    .calendar-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+    .calendar-nav button{background:var(--accent1);color:white;border:none;padding:7px 13px;
+      border-radius:6px;font-size:.9em;cursor:pointer;transition:.3s;}
+    .calendar-nav button:hover{background:var(--accent2);}
+    .calendar-nav h2{color:#333;font-size:1.3em;}
+    .calendar{
+      display:grid;
+      grid-template-columns:repeat(7, minmax(0, 1fr));
+      gap:3px;
+      width:100%;
+    }
+    .day-header{text-align:center;font-weight:700;color:var(--accent1);
+      background:#f8f9fa;border-radius:6px;font-size:1.6em;padding:10px 4px;}
+    .day{border:1px solid #e0e0e0;border-radius:6px;padding:4px 5px;
+      display:flex;flex-direction:column;justify-content:space-between;transition:.25s;
+      background:#fff;min-height:70px;}
+    .day:hover{transform:scale(1.03);box-shadow:0 4px 8px rgba(0,0,0,.15);}
+    .day.other-month{opacity:.3;}
+    .day-number{font-size:.9em;font-weight:bold;}
+    .day-events{
+      font-size:.8em;font-weight:600;margin-top:auto;line-height:1.3em;
+      display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+      max-width:100%;
+    }
+    .day-events > div{
+      max-width:100%;
+      white-space:normal;
+      word-break:break-word;
+      overflow:hidden;
+    }
+    /* Base operational colors */
+    .day.open-day,.day.clinic-day{background:linear-gradient(135deg,#84fab0 0%,#8fd3f4 100%);}
+    .day.admin-day{background:linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%);}
+    .day.closed-day{background:linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%);}
+    /* Special/Major colors */
+    .day.closure-day{background:linear-gradient(135deg,#ff6b6b 0%,#c92a2a 100%);color:white;}
+    .day.easter-day{background:linear-gradient(135deg,#7b4397 0%,#4a148c 100%);color:white;}
+    .day.publicholiday-day{background:linear-gradient(135deg,#43cea2 0%,#185a9d 100%);color:white;}
+    .day.bbq-day{background:linear-gradient(135deg,#ffd93d 0%,#ff6b35 100%);}
+    .day.agm-day{background:linear-gradient(135deg,#99f2c8 0%,#f9f586 50%,#f6d365 100%);color:#222;text-shadow:0 0 6px rgba(255,255,255,0.6);}
+    .day.education-day{background:linear-gradient(135deg,#b2fefa 0%,#0ed2f7 100%);}
+    .day.committee-day{background:linear-gradient(135deg,#ff4fd8 0%,#ff0080 100%);color:white;}
+    /* Today highlight */
+    .day.today{border:3px solid var(--accent1);box-shadow:0 0 6px rgba(102,126,234,0.6);}
+    .day.hidden{opacity:.15;pointer-events:none;}
+    /* Focus highlight mode */
+    .day.dim{opacity:.14;}
+    .day.focus{outline:3px solid rgba(0,0,0,.55);outline-offset:-3px;}
+    /* Collapsed filters */
+    body.filters-collapsed .filter-group{display:none;}
+    /* Single-filter mode hides others */
+    .single-hide{display:none !important;}
+    /* Mobile tuning */
+    @media(max-width:700px){
+      body{padding:4px;}
+      .container{border-radius:10px;}
+      .header{padding:10px;}
+      .header h1{font-size:1.2em;margin-bottom:2px;}
+      .header p{font-size:.86em;line-height:1.2;}
+      .main-content{flex-direction:column;}
+      .sidebar{width:100%;border-right:none;border-bottom:1px solid #e0e0e0;padding:10px;}
+      .calendar-section{padding:8px;}
+      .calendar-nav{margin-bottom:8px;}
+      .calendar-nav h2{font-size:1em;}
+      .calendar-nav button{padding:6px 10px;font-size:.8em;border-radius:6px;}
+      .calendar{gap:1px;}
+      .day-header{font-size:.92em;padding:5px 1px;border-radius:6px;}
+      .day{min-height:50px;padding:2px 3px;border-radius:6px;}
+      .day-number{font-size:.66em;}
+      .day-events{font-size:.54em;line-height:1.12em;gap:2px;}
+      .top-controls{gap:6px;margin-bottom:10px;}
+      .today-btn{padding:10px;font-size:.8em;}
+      .filter-btn{font-size:.8em;padding:7px 10px;}
+      .nav-btn{width:30px;height:30px;font-size:.98em;border-radius:6px;}
+      .day:hover,.filter-btn:hover,.nav-btn:hover,.today-btn:hover{transform:none;box-shadow:none;}
+    }
+    @media(max-width:420px){
+      .header h1{font-size:1.1em;}
+      .header p{font-size:.84em;}
+      .calendar-nav h2{font-size:.96em;}
+      .calendar-nav button{padding:6px 9px;font-size:.78em;border-radius:6px;}
+      .day-header{font-size:.88em;padding:5px 1px;}
+      .day{min-height:48px;padding:2px 3px;border-radius:6px;}
+      .day-number{font-size:.64em;}
+      .day-events{font-size:.52em;line-height:1.1em;}
+    }
+    @media(max-width:360px){
+      .calendar{gap:1px;}
+      .day{min-height:46px;padding:2px 3px;}
+      .day-events{font-size:.5em;}
+    }
+  </style>
 </head>
+
 <body>
-<div class="container">
+  <div class="container">
     <div class="header">
-        <h1>Ileostomy Association</h1>
-        <p>Support Tools & Resources</p>
+      <h1>Ileostomy Association Calendar</h1>
     </div>
 
-    <div class="apps-grid">
-
-        <!-- 0. App Launcher for Phones (hidden on phones) -->
-        <div class="app-card hide-on-phone">
-            <span class="mobile-badge">Recommended on phones</span>
-            <div class="app-icon icon-mobile">📲</div>
-            <h2 class="app-title">App Launcher for Phones</h2>
-            <p class="app-description">
-                Scan to open the Ileostomy Association app launcher on your phone.
-            </p>
-            <div class="button-row">
-                <button class="qr-button" id="showLauncherQrBtn">
-                    Show QR Code
-                </button>
-            </div>
+    <div class="main-content">
+      <aside class="sidebar">
+        <div class="top-controls">
+          <button id="btnToday" class="today-btn half-btn" type="button">Back to Today</button>
+          <button id="btnToggleFilters" class="today-btn half-btn" type="button">Hide Filters</button>
         </div>
 
-        <!-- 1. Calendar -->
-        <div class="app-card">
-            <span class="mobile-badge">Recommended on phones</span>
-            <div class="app-icon icon-mobile">📅</div>
-            <h2 class="app-title">Calendar</h2>
-            <p class="app-description">
-                Mobile-optimised calendar for phones.
-            </p>
-            <div class="button-row">
-                <a href="https://frakntoastr.github.io/Ileostomy-Association/calendar/index-v2.html"
-                   class="launch-button">
-                    Launch App
-                </a>
-                <button class="qr-button" id="showCalendarQrBtn">
-                    Show QR Code
-                </button>
-            </div>
+        <div class="filter-group" id="filterGroup">
+          <div class="filter-row" data-filter="open">
+            <button class="filter-btn" type="button" data-filter="open" aria-label="Open filter">
+              <span class="color-indicator" style="background:#84fab0;"></span>
+              Open
+            </button>
+          </div>
+
+          <div class="filter-row" data-filter="clinic">
+            <button class="filter-btn" type="button" data-filter="clinic" aria-label="Open and Clinic filter">
+              <span class="color-indicator" style="background:#84fab0;"></span>
+              Open/Clinic
+            </button>
+          </div>
+
+          <div class="filter-row" data-filter="bbq">
+            <button class="filter-btn allow-wrap" type="button" data-filter="bbq" aria-label="Paul Martin BBQ filter">
+              <span class="color-indicator" style="background:#ffd93d;"></span>
+              Paul Martin BBQ
+            </button>
+            <button class="nav-btn" type="button" data-nav="prev" data-filter="bbq" aria-label="Previous BBQ">◀</button>
+            <button class="nav-btn" type="button" data-nav="next" data-filter="bbq" aria-label="Next BBQ">▶</button>
+          </div>
+
+          <div class="filter-row" data-filter="committee">
+            <button class="filter-btn" type="button" data-filter="committee" aria-label="Committee filter">
+              <span class="color-indicator" style="background:#ff0080;"></span>
+              Committee
+            </button>
+            <button class="nav-btn" type="button" data-nav="prev" data-filter="committee" aria-label="Previous Committee">◀</button>
+            <button class="nav-btn" type="button" data-nav="next" data-filter="committee" aria-label="Next Committee">▶</button>
+          </div>
+
+          <div class="filter-row" data-filter="publicholiday">
+            <button class="filter-btn allow-wrap" type="button" data-filter="publicholiday" aria-label="Public Holidays filter">
+              <span class="color-indicator" style="background:#185a9d;"></span>
+              Public Holidays
+            </button>
+            <button class="nav-btn" type="button" data-nav="prev" data-filter="publicholiday" aria-label="Previous Public Holiday">◀</button>
+            <button class="nav-btn" type="button" data-nav="next" data-filter="publicholiday" aria-label="Next Public Holiday">▶</button>
+          </div>
+
+          <div class="filter-row" data-filter="education">
+            <button class="filter-btn allow-wrap" type="button" data-filter="education" aria-label="Education Days filter">
+              <span class="color-indicator" style="background:#0ed2f7;"></span>
+              Education Days
+            </button>
+            <button class="nav-btn" type="button" data-nav="prev" data-filter="education" aria-label="Previous Education Day">◀</button>
+            <button class="nav-btn" type="button" data-nav="next" data-filter="education" aria-label="Next Education Day">▶</button>
+          </div>
+
+          <div class="filter-row" data-filter="agm">
+            <button class="filter-btn" type="button" data-filter="agm" aria-label="AGM filter">
+              <span class="color-indicator" style="background:#f6d365;"></span>
+              AGM
+            </button>
+            <button class="nav-btn" type="button" data-nav="prev" data-filter="agm" aria-label="Previous AGM">◀</button>
+            <button class="nav-btn" type="button" data-nav="next" data-filter="agm" aria-label="Next AGM">▶</button>
+          </div>
+
+          <div class="filter-row" data-filter="easter">
+            <button class="filter-btn" type="button" data-filter="easter" aria-label="Easter filter">
+              <span class="color-indicator" style="background:#4a148c;"></span>
+              Easter
+            </button>
+            <button class="nav-btn" type="button" data-nav="prev" data-filter="easter" aria-label="Previous Easter">◀</button>
+            <button class="nav-btn" type="button" data-nav="next" data-filter="easter" aria-label="Next Easter">▶</button>
+          </div>
+
+          <div class="filter-row" data-filter="closure">
+            <button class="filter-btn allow-wrap" type="button" data-filter="closure" aria-label="Christmas and New Years closure filter">
+              <span class="color-indicator" style="background:#c92a2a;"></span>
+              Christmas/New Years
+            </button>
+            <button class="nav-btn" type="button" data-nav="prev" data-filter="closure" aria-label="Previous Closure">◀</button>
+            <button class="nav-btn" type="button" data-nav="next" data-filter="closure" aria-label="Next Closure">▶</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="calendar-section">
+        <div class="calendar-nav">
+          <button id="btnPrevMonth" type="button" aria-label="Previous month">◀</button>
+          <h2 id="monthTitle">Month YYYY</h2>
+          <button id="btnNextMonth" type="button" aria-label="Next month">▶</button>
         </div>
 
-        <!-- 2. Support Heatmap -->
-        <a href="https://frakntoastr.github.io/Ileostomy-Association/support-heatmap/index.html"
-           class="app-card">
-            <div class="app-icon icon-standard">🌍</div>
-            <h2 class="app-title">Support Heatmap</h2>
-            <p class="app-description">
-                Find nearest Ostomate support groups and member counts by suburb or locality.
-            </p>
-            <span class="launch-button">Launch App</span>
-        </a>
-
-        <!-- 3. QR Generator -->
-        <a href="https://frakntoastr.github.io/Ileostomy-Association/qr-generator/index.html"
-           class="app-card">
-            <div class="app-icon icon-standard">📱</div>
-            <h2 class="app-title">QR Generator</h2>
-            <p class="app-description">
-                Generate QR codes for events, contacts, and resources.
-            </p>
-            <span class="launch-button">Launch App</span>
-        </a>
-
+        <div class="calendar" id="calendarGrid" aria-label="Calendar grid"></div>
+      </section>
     </div>
-</div>
+  </div>
 
-<!-- QR Modals -->
-<div class="qr-modal" id="launcherQrModal">
-    <img src="https://frakntoastr.github.io/Ileostomy-Association/assets/qr/IASA-launcher.png"
-         alt="App Launcher QR Code">
-</div>
+  <script>
+    "use strict";
 
-<div class="qr-modal" id="calendarQrModal">
-    <img src="https://frakntoastr.github.io/Ileostomy-Association/assets/qr/mobile-calendar-qr.png"
-         alt="Calendar QR Code">
-</div>
+    // ---------------------------------------------------------------------
+    // Nurse availability (implemented per provided rules)
+    // - Usual schedule when nurse is available:
+    //   * Every Wednesday
+    //   * 3rd Saturday of the month
+    //   * Last Friday of the month
+    // - Nurse last working day: Fri 30 Jan 2026
+    // - Nurse leave: 2026-01-31 through 2026-06-30 inclusive
+    // - Nurse returns: Wed 1 Jul 2026 (clinic resumes from next scheduled clinic day)
+    // ---------------------------------------------------------------------
+    // Kept as a constant set (still supported for any future one-off additions).
+    const EXTRA_FRIDAY_CLINICS = new Set([
+      // (none required under current schedule)
+    ]);
 
-<script>
-    const launcherBtn = document.getElementById("showLauncherQrBtn");
-    const launcherModal = document.getElementById("launcherQrModal");
+    // Inclusive blocks. During leave, clinic is suppressed (Open rules remain).
+    const NURSE_LEAVE_BLOCKS = [
+      { start: "2026-01-31", end: "2026-06-30" }
+    ];
 
-    const calendarBtn = document.getElementById("showCalendarQrBtn");
-    const calendarModal = document.getElementById("calendarQrModal");
+    // ---------------------------------------------------------------------
+    // Major Events / Holidays (Authoritative)
+    // ---------------------------------------------------------------------
+    // Paul Martin BBQ (calendar label: "BBQ")
+    const BBQ_DATES = new Set([
+      "2026-02-15",
+      "2026-06-14",
+      "2026-11-15",
+    ]);
 
-    if (launcherBtn) {
-        launcherBtn.addEventListener("click", () =>
-            launcherModal.classList.add("active"));
+    // AGM
+    const AGM_DATES = new Set([
+      "2026-10-18",
+    ]);
+
+    // Education Days (2026)
+    const EDUCATION_DAYS = new Map([
+      ["2026-05-21", "Murray Bridge"],
+      ["2026-06-18", "Clare"],
+      ["2026-07-23", "Metro"],
+      ["2026-08-06", "Barossa"],
+      ["2026-08-20", "Morphett Vale"],
+      ["2026-09-17", "Mt Gambier"],
+      ["2026-10-15", "Kadina"],
+      ["2026-11-19", "Whyalla"],
+    ]);
+
+    // Public Holidays (explicit list only; do not invent)
+    const PUBLIC_HOLIDAY_DATES = new Set([
+      "2026-01-26",
+      "2026-03-09",
+      "2026-06-08",
+      "2026-10-05",
+      "2027-01-26",
+      "2027-03-08",
+      "2027-06-14",
+      "2027-10-04",
+    ]);
+
+    // Easter blocks (Computus) and Christmas/New Year closure blocks
+    const EASTER_DATES = buildEasterDateSet(2025, 2031);   // Good Friday -> Easter Monday inclusive
+    const CLOSURE_DATES = buildClosureDateSet(2024, 2031); // 25 Dec -> 2 Jan inclusive
+
+    // Public holiday FILTER matching:
+    // - Must include explicit PUBLIC_HOLIDAY_DATES
+    // - Must include ONLY the actual SA public holidays at Easter and Christmas/New Year
+    //   (while Easter/Closure display styling remains Easter/Closure)
+    const EASTER_PUBLIC_HOLIDAY_DATES = EASTER_DATES; // In SA, all four Easter days are public holidays.
+    const CHRISTMAS_NY_PUBLIC_HOLIDAY_DATES = buildChristmasNewYearPublicHolidaySet(2024, 2031);
+
+    // ---------------------------------------------------------------------
+    // Filters state
+    // ---------------------------------------------------------------------
+    const FILTER_KEYS = ["open","clinic","bbq","committee","education","agm","publicholiday","easter","closure"];
+
+    const activeFilters = Object.create(null);
+    for (const k of FILTER_KEYS) activeFilters[k] = false;
+
+    let singleFilterKey = null; // when set, hide other filter rows
+    let focusState = null;      // { key, monthKey, dateKeys:Set<string> }
+
+    function hasFilterKey(key) {
+      return Object.prototype.hasOwnProperty.call(activeFilters, key);
     }
 
-    calendarBtn.addEventListener("click", () =>
-        calendarModal.classList.add("active"));
+    // ---------------------------------------------------------------------
+    // Dates / View state
+    // ---------------------------------------------------------------------
+    const monthNames = [
+      "January","February","March","April","May","June",
+      "July","August","September","October","November","December"
+    ];
 
-    document.querySelectorAll(".qr-modal").forEach(modal => {
-        modal.addEventListener("click", e => {
-            if (e.target === modal) {
-                modal.classList.remove("active");
-            }
-        });
+    const today = new Date();
+    const todayKey = dateToKey(today);
+
+    // Current month is stored as a Date pointing to the first day of that month (local time).
+    let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    // ---------------------------------------------------------------------
+    // Device detection (UA; prefer userAgentData.mobile)
+    // ---------------------------------------------------------------------
+    function isMobileDevice() {
+      try {
+        if (navigator.userAgentData && typeof navigator.userAgentData.mobile === "boolean") {
+          return navigator.userAgentData.mobile;
+        }
+      } catch (_) {}
+      const ua = String(navigator.userAgent || "");
+      return /Android|iPhone|iPad|iPod|IEMobile|Opera Mini|Mobile/i.test(ua);
+    }
+
+    const IS_MOBILE = isMobileDevice();
+
+    // ---------------------------------------------------------------------
+    // DOM
+    // ---------------------------------------------------------------------
+    const elCalendarGrid = document.getElementById("calendarGrid");
+    const elMonthTitle = document.getElementById("monthTitle");
+    const btnPrevMonth = document.getElementById("btnPrevMonth");
+    const btnNextMonth = document.getElementById("btnNextMonth");
+    const btnToday = document.getElementById("btnToday");
+    const btnToggleFilters = document.getElementById("btnToggleFilters");
+
+    // ---------------------------------------------------------------------
+    // Init: mobile vs desktop initial filter panel state
+    // ---------------------------------------------------------------------
+    if (IS_MOBILE) {
+      document.body.classList.add("filters-collapsed");
+      btnToggleFilters.textContent = "Show Filters";
+    } else {
+      document.body.classList.remove("filters-collapsed");
+      btnToggleFilters.textContent = "Hide Filters";
+    }
+
+    // ---------------------------------------------------------------------
+    // Event handlers
+    // ---------------------------------------------------------------------
+    btnToggleFilters.addEventListener("click", () => {
+      const collapsed = document.body.classList.toggle("filters-collapsed");
+      btnToggleFilters.textContent = collapsed ? "Show Filters" : "Hide Filters";
     });
-</script>
+
+    btnToday.addEventListener("click", () => {
+      clearAllFiltersAndModes();
+      currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      render();
+    });
+
+    btnPrevMonth.addEventListener("click", () => {
+      clearFocus();
+      currentMonth = addMonths(currentMonth, -1);
+      render();
+    });
+
+    btnNextMonth.addEventListener("click", () => {
+      clearFocus();
+      currentMonth = addMonths(currentMonth, 1);
+      render();
+    });
+
+    // Filter button clicks (event delegation)
+    document.getElementById("filterGroup").addEventListener("click", (e) => {
+      const target = e.target;
+
+      // Nav arrows
+      const navBtn = target.closest && target.closest("button.nav-btn");
+      if (navBtn) {
+        const key = navBtn.getAttribute("data-filter");
+        const dir = navBtn.getAttribute("data-nav") === "next" ? 1 : -1;
+        onNavArrow(key, dir);
+        return;
+      }
+
+      // Filter toggle button
+      const filterBtn = target.closest && target.closest("button.filter-btn");
+      if (filterBtn) {
+        const key = filterBtn.getAttribute("data-filter");
+        onFilterToggle(key);
+      }
+    });
+
+    // ---------------------------------------------------------------------
+    // Core actions
+    // ---------------------------------------------------------------------
+    function onFilterToggle(key) {
+      if (!hasFilterKey(key)) return;
+
+      clearFocusIfChangingKey(key);
+
+      // Enter single-filter mode for the tapped filter
+      if (singleFilterKey !== key) singleFilterKey = key;
+
+      // Enforce single-active-filter semantics while in single-filter mode:
+      const wasActive = !!activeFilters[key];
+      setAllFilters(false);
+
+      if (wasActive) {
+        // Toggled off => exit single-filter mode (restore all filters)
+        singleFilterKey = null;
+      } else {
+        activeFilters[key] = true;
+
+        // If the active filter has NO occurrences in the currently displayed month,
+        // automatically jump forward to the next month (scan up to 12 months).
+        // (This does NOT apply focus highlight; focus is reserved for nav arrows.)
+        if (!filterHasAnyOccurrenceInMonth(key, currentMonth)) {
+          const result = findOccurrenceMonthAndKeys(key, 1, currentMonth, 12);
+          if (result) {
+            clearFocus();
+            currentMonth = new Date(result.year, result.month, 1);
+          }
+        }
+      }
+
+      applySingleFilterMode(singleFilterKey);
+      syncFilterButtonStates();
+      render();
+    }
+
+    function onNavArrow(key, direction) {
+      if (!hasFilterKey(key)) return;
+
+      // Enter single-filter mode for that category.
+      singleFilterKey = key;
+      applySingleFilterMode(singleFilterKey);
+
+      // Make that filter active (single-active for nav)
+      setAllFilters(false);
+      activeFilters[key] = true;
+      syncFilterButtonStates();
+
+      // Clear any prior focus state before applying the new one
+      clearFocus();
+
+      // Jump to month containing previous/next occurrence (scan up to 12 months)
+      const result = findOccurrenceMonthAndKeys(key, direction, currentMonth, 12);
+
+      if (result) {
+        currentMonth = new Date(result.year, result.month, 1);
+        focusState = {
+          key: key,
+          monthKey: monthKey(currentMonth),
+          dateKeys: result.keys
+        };
+      } else {
+        // Safe no-op: stay on current month; no focus highlight
+        focusState = null;
+      }
+
+      render();
+    }
+
+    function clearAllFiltersAndModes() {
+      setAllFilters(false);
+      singleFilterKey = null;
+      clearFocus();
+      applySingleFilterMode(null);
+      syncFilterButtonStates();
+    }
+
+    function clearFocus() {
+      focusState = null;
+    }
+
+    function clearFocusIfChangingKey(newKey) {
+      if (focusState && focusState.key !== newKey) clearFocus();
+    }
+
+    function setAllFilters(value) {
+      for (const k of FILTER_KEYS) activeFilters[k] = !!value;
+    }
+
+    function applySingleFilterMode(keyOrNull) {
+      const rows = document.querySelectorAll(".filter-row");
+      rows.forEach(row => {
+        const k = row.getAttribute("data-filter");
+        if (keyOrNull && k !== keyOrNull) row.classList.add("single-hide");
+        else row.classList.remove("single-hide");
+      });
+    }
+
+    function syncFilterButtonStates() {
+      document.querySelectorAll(".filter-btn").forEach(btn => {
+        const k = btn.getAttribute("data-filter");
+        btn.classList.toggle("active", !!activeFilters[k]);
+      });
+    }
+
+    // ---------------------------------------------------------------------
+    // Rendering
+    // ---------------------------------------------------------------------
+    function render() {
+      // Clear focus if month has changed away from focus month (defensive)
+      if (focusState && focusState.monthKey !== monthKey(currentMonth)) {
+        focusState = null;
+      }
+
+      elMonthTitle.textContent = monthNames[currentMonth.getMonth()] + " " + String(currentMonth.getFullYear());
+
+      // Build grid: headers + 42 day cells
+      const frag = document.createDocumentFragment();
+      const headers = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+      for (const h of headers) {
+        const div = document.createElement("div");
+        div.className = "day-header";
+        div.textContent = h;
+        frag.appendChild(div);
+      }
+
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth();
+
+      // Start date for a 6-week grid, Monday-first
+      const firstOfMonth = new Date(year, month, 1);
+      const offset = jsDowToMon0(firstOfMonth.getDay()); // 0..6
+      const startDate = new Date(year, month, 1 - offset);
+
+      const anyFilterActive = isAnyFilterActive();
+
+      for (let i = 0; i < 42; i++) {
+        const d = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + i);
+        const key = dateToKey(d);
+
+        const info = getDayInfo(d);
+
+        const dayEl = document.createElement("div");
+        dayEl.className = "day";
+
+        // Color class selection by precedence
+        const colorClass = selectColorClass(info);
+        if (colorClass) dayEl.classList.add(colorClass);
+
+        // Other-month appearance
+        if (d.getMonth() !== month) dayEl.classList.add("other-month");
+
+        // Today highlight (always thick border)
+        if (key === todayKey) dayEl.classList.add("today");
+
+        // Focus highlight mode (from nav arrows): dim all other days, highlight focus days
+        if (focusState && focusState.key === singleFilterKey && focusState.dateKeys) {
+          if (focusState.dateKeys.has(key)) dayEl.classList.add("focus");
+          else dayEl.classList.add("dim");
+        } else if (anyFilterActive) {
+          // Normal filtering: hide/dim all non-matching days (today remains visible for orientation)
+          const matches = matchesActiveFilters(info);
+          if (!matches && key !== todayKey) dayEl.classList.add("hidden");
+        }
+
+        // Content: day number + event lines
+        const dn = document.createElement("div");
+        dn.className = "day-number";
+        dn.textContent = String(d.getDate());
+
+        const events = document.createElement("div");
+        events.className = "day-events";
+        for (const line of info.labelLines) {
+          const ln = document.createElement("div");
+          ln.textContent = line;
+          events.appendChild(ln);
+        }
+
+        dayEl.appendChild(dn);
+        dayEl.appendChild(events);
+        frag.appendChild(dayEl);
+      }
+
+      elCalendarGrid.innerHTML = "";
+      elCalendarGrid.appendChild(frag);
+    }
+
+    function isAnyFilterActive() {
+      for (const k of FILTER_KEYS) if (activeFilters[k]) return true;
+      return false;
+    }
+
+    function matchesActiveFilters(info) {
+      // OR semantics across active filters
+      let any = false;
+      for (const k of FILTER_KEYS) {
+        if (!activeFilters[k]) continue;
+        any = true;
+        if (matchesCategory(k, info)) return true;
+      }
+      return !any; // if none active, treat as match-all
+    }
+
+    function matchesCategory(key, info) {
+      switch (key) {
+        case "open": return !!info.open;
+        case "clinic": return !!info.clinic;
+        case "bbq": return !!info.bbq;
+        case "committee": return !!info.committee;
+        case "education": return !!info.education;
+        case "agm": return !!info.agm;
+        case "publicholiday": return !!info.publicholidayForFilter;
+        case "easter": return !!info.easter;
+        case "closure": return !!info.closure;
+        default: return false;
+      }
+    }
+
+    // Helper: do we have any occurrences of a filter in the displayed month?
+    function filterHasAnyOccurrenceInMonth(filterKey, monthDate) {
+      const y = monthDate.getFullYear();
+      const m = monthDate.getMonth();
+      const keys = keysMatchingFilterInMonth(filterKey, y, m);
+      return keys.size > 0;
+    }
+
+    // ---------------------------------------------------------------------
+    // Day typing, precedence, labels
+    // ---------------------------------------------------------------------
+    function getDayInfo(dateObj) {
+      const key = dateToKey(dateObj);
+      const dowMon0 = jsDowToMon0(dateObj.getDay()); // 0=Mon .. 6=Sun
+      const dom = dateObj.getDate();
+
+      // Special Holidays (highest priority)
+      const closure = CLOSURE_DATES.has(key);
+      const easter = EASTER_DATES.has(key);
+
+      // Public Holidays:
+      // - publicholidayActual: only explicit list (label + colour)
+      // - publicholidayForFilter: explicit list + Easter PHs + Christmas/NY PHs (filter/nav only)
+      const publicholidayActual = PUBLIC_HOLIDAY_DATES.has(key);
+      const publicholidayForFilter =
+        publicholidayActual ||
+        EASTER_PUBLIC_HOLIDAY_DATES.has(key) ||
+        CHRISTMAS_NY_PUBLIC_HOLIDAY_DATES.has(key);
+
+      // Major Events
+      const bbq = BBQ_DATES.has(key);
+      const agm = AGM_DATES.has(key);
+      const educationLocation = EDUCATION_DAYS.get(key) || null;
+      const education = !!educationLocation;
+
+      // Committee: 3rd Monday every month
+      const committee = (dowMon0 === 0 && dom >= 15 && dom <= 21);
+
+      // Base operational rules
+      const thirdSaturday = (dowMon0 === 5 && dom >= 15 && dom <= 21);
+      const admin = (dowMon0 === 3); // Thu
+
+      // Nurse leave suppresses clinic label
+      const inNurseLeave = isInAnyLeaveBlock(key);
+
+      // Nurse clinic schedule (when available):
+      // - Every Wednesday
+      // - 3rd Saturday of month
+      // - Last Friday of month
+      const lastFriday = isLastFridayOfMonth(dateObj);
+      const clinicBySchedule = (dowMon0 === 2) || thirdSaturday || lastFriday;
+
+      // Clinic occurs if nurse is available, plus any optional one-off additions.
+      const clinicBase = (!inNurseLeave) && (clinicBySchedule || EXTRA_FRIDAY_CLINICS.has(key));
+
+      // Open rules: Mon, Tue, Wed, Fri, plus 3rd Saturday only
+      let open = (dowMon0 === 0 || dowMon0 === 1 || dowMon0 === 2 || dowMon0 === 4 || thirdSaturday);
+      let closed = false;
+
+      // Closed rules: Sun always closed; Sat closed except 3rd Sat; Thu admin closed
+      if (admin) {
+        open = false;
+        closed = true;
+      } else if (dowMon0 === 6) {
+        open = false;
+        closed = true;
+      } else if (dowMon0 === 5 && !thirdSaturday) {
+        open = false;
+        closed = true;
+      } else {
+        closed = !open;
+      }
+
+      // Special holidays override base operational concept (closed for practical purposes)
+      // (Labels/colors override; do not show base Open/Clinic/Closed for special holidays.)
+      let clinic = clinicBase;
+      if (closure || easter) {
+        open = false;
+        clinic = false;
+        closed = true;
+      }
+
+      // Label line generation (per spec)
+      const labelLines = [];
+
+      if (closure) {
+        labelLines.push("Christmas/New");
+        labelLines.push("Years");
+      } else if (easter) {
+        labelLines.push("Easter");
+      } else {
+        // Always include event labels first (no emojis)
+        if (publicholidayActual) labelLines.push("Public Holiday");
+        if (agm) labelLines.push("AGM");
+        if (bbq) labelLines.push("BBQ");
+        if (education) labelLines.push("Education: " + educationLocation);
+        if (committee) labelLines.push("Comm.");
+
+        // IMPORTANT RULE UPDATE:
+        // If this is an actual Public Holiday day, do NOT show any base operational labels (Open/Clinic/Closed/Admin).
+        if (!publicholidayActual) {
+          if (admin) {
+            labelLines.push("Closed (Admin Day)");
+          } else if (open && clinic) {
+            labelLines.push("Open");
+            labelLines.push("Clinic");
+          } else if (open) {
+            labelLines.push("Open");
+          } else if (closed) {
+            labelLines.push("Closed");
+          }
+        }
+      }
+
+      return {
+        key,
+        closure,
+        easter,
+        publicholidayActual,
+        publicholidayForFilter,
+        bbq,
+        agm,
+        education,
+        committee,
+        admin,
+        closed,
+        open,
+        clinic,
+        labelLines
+      };
+    }
+
+    // Color class selection by precedence (exactly one)
+    function selectColorClass(info) {
+      if (info.closure) return "closure-day";
+      if (info.easter) return "easter-day";
+      if (info.publicholidayActual) return "publicholiday-day";
+      if (info.agm) return "agm-day";
+      if (info.bbq) return "bbq-day";
+      if (info.education) return "education-day";
+      if (info.committee) return "committee-day";
+      if (info.admin) return "admin-day";
+      if (info.closed) return "closed-day";
+      if (info.clinic) return "clinic-day";
+      if (info.open) return "open-day";
+      return "";
+    }
+
+    // ---------------------------------------------------------------------
+    // Navigation scanning (bounded to maxMonths)
+    // ---------------------------------------------------------------------
+    function findOccurrenceMonthAndKeys(filterKey, direction, fromMonthDate, maxMonths) {
+      const start = new Date(fromMonthDate.getFullYear(), fromMonthDate.getMonth(), 1);
+
+      for (let step = 1; step <= maxMonths; step++) {
+        const candidate = addMonths(start, direction * step);
+        const y = candidate.getFullYear();
+        const m = candidate.getMonth();
+
+        const keys = keysMatchingFilterInMonth(filterKey, y, m);
+        if (keys.size > 0) {
+          return { year: y, month: m, keys };
+        }
+      }
+      return null;
+    }
+
+    function keysMatchingFilterInMonth(filterKey, year, month) {
+      const out = new Set();
+      const days = daysInMonth(year, month);
+
+      for (let d = 1; d <= days; d++) {
+        const dt = new Date(year, month, d);
+        const info = getDayInfo(dt);
+        if (matchesCategory(filterKey, info)) {
+          out.add(info.key);
+        }
+      }
+      return out;
+    }
+
+    // ---------------------------------------------------------------------
+    // Helpers (dates, sets, nurse leave)
+    // ---------------------------------------------------------------------
+    function pad2(n) { return String(n).padStart(2, "0"); }
+
+    function dateToKey(d) {
+      const y = d.getFullYear();
+      const m = pad2(d.getMonth() + 1);
+      const day = pad2(d.getDate());
+      return y + "-" + m + "-" + day;
+    }
+
+    function monthKey(d) {
+      return d.getFullYear() + "-" + pad2(d.getMonth() + 1);
+    }
+
+    function jsDowToMon0(jsDow) {
+      // JS: Sun=0..Sat=6 => Mon=0..Sun=6
+      return (jsDow + 6) % 7;
+    }
+
+    function addMonths(dateObj, deltaMonths) {
+      const y = dateObj.getFullYear();
+      const m = dateObj.getMonth();
+      return new Date(y, m + deltaMonths, 1);
+    }
+
+    function daysInMonth(year, month) {
+      return new Date(year, month + 1, 0).getDate();
+    }
+
+    function isLastFridayOfMonth(dateObj) {
+      // Friday in Mon-first index is 4 (Mon=0)
+      const dowMon0 = jsDowToMon0(dateObj.getDay());
+      if (dowMon0 !== 4) return false;
+      const y = dateObj.getFullYear();
+      const m = dateObj.getMonth();
+      const dim = daysInMonth(y, m);
+      return (dateObj.getDate() + 7) > dim;
+    }
+
+    function isInAnyLeaveBlock(dateKey) {
+      // Inclusive blocks; dateKey is YYYY-MM-DD => lexicographic compare is valid.
+      for (const blk of NURSE_LEAVE_BLOCKS) {
+        if (!blk || !blk.start || !blk.end) continue;
+        if (blk.start <= dateKey && dateKey <= blk.end) return true;
+      }
+      return false;
+    }
+
+    // Computus (Gregorian) => Easter Sunday; then Good Friday through Easter Monday inclusive
+    function easterSunday(year) {
+      const a = year % 19;
+      const b = Math.floor(year / 100);
+      const c = year % 100;
+      const d = Math.floor(b / 4);
+      const e = b % 4;
+      const f = Math.floor((b + 8) / 25);
+      const g = Math.floor((b - f + 1) / 3);
+      const h = (19 * a + b - d - g + 15) % 30;
+      const i = Math.floor(c / 4);
+      const k = c % 4;
+      const l = (32 + 2 * e + 2 * i - h - k) % 7;
+      const m = Math.floor((a + 11 * h + 22 * l) / 451);
+      const month = Math.floor((h + l - 7 * m + 114) / 31);     // 3=March, 4=April
+      const day = ((h + l - 7 * m + 114) % 31) + 1;
+      return new Date(year, month - 1, day);
+    }
+
+    function addDays(dateObj, days) {
+      return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate() + days);
+    }
+
+    function buildEasterDateSet(startYear, endYear) {
+      const set = new Set();
+      for (let y = startYear; y <= endYear; y++) {
+        const easter = easterSunday(y);
+        const goodFriday = addDays(easter, -2);
+        const saturday = addDays(easter, -1);
+        const sunday = easter;
+        const monday = addDays(easter, 1);
+
+        set.add(dateToKey(goodFriday));
+        set.add(dateToKey(saturday));
+        set.add(dateToKey(sunday));
+        set.add(dateToKey(monday));
+      }
+      return set;
+    }
+
+    function buildClosureDateSet(startYear, endYear) {
+      const set = new Set();
+      for (let y = startYear; y <= endYear; y++) {
+        // 25 Dec (y) to 2 Jan (y+1) inclusive
+        const start = new Date(y, 11, 25);
+        const end = new Date(y + 1, 0, 2);
+
+        // iterate day-by-day (bounded: 9 days per year)
+        let cur = start;
+        while (cur <= end) {
+          set.add(dateToKey(cur));
+          cur = addDays(cur, 1);
+        }
+      }
+      return set;
+    }
+
+    // Actual SA public holidays around Christmas/New Year (for public holiday FILTER only):
+    function buildChristmasNewYearPublicHolidaySet(startYear, endYear) {
+      const set = new Set();
+      for (let y = startYear; y <= endYear; y++) {
+        const christmas = new Date(y, 11, 25);
+        const boxing = new Date(y, 11, 26);
+        set.add(dateToKey(christmas));
+        set.add(dateToKey(boxing));
+
+        // Christmas additional day (if 25 Dec is Sat/Sun => following Monday)
+        const christmasDow = christmas.getDay(); // Sun=0 ... Sat=6
+        if (christmasDow === 6) { // Sat
+          set.add(dateToKey(new Date(y, 11, 27))); // Mon 27 Dec
+        } else if (christmasDow === 0) { // Sun
+          set.add(dateToKey(new Date(y, 11, 26))); // Mon 26 Dec (already included; harmless)
+        }
+
+        // Proclamation additional day when 26 Dec falls on weekend
+        const boxingDow = boxing.getDay();
+        if (boxingDow === 6) { // Sat
+          set.add(dateToKey(new Date(y, 11, 28))); // Mon 28 Dec
+        } else if (boxingDow === 0) { // Sun
+          set.add(dateToKey(new Date(y, 11, 28))); // Tue 28 Dec
+        }
+
+        // New Year's Day: 1 Jan (of the following year)
+        const nyYear = y + 1;
+        const newYear = new Date(nyYear, 0, 1);
+        set.add(dateToKey(newYear));
+
+        // New Year's additional day (if 1 Jan is Sat/Sun => following Monday)
+        const newYearDow = newYear.getDay();
+        if (newYearDow === 6) { // Sat
+          set.add(dateToKey(new Date(nyYear, 0, 3))); // Mon 3 Jan
+        } else if (newYearDow === 0) { // Sun
+          set.add(dateToKey(new Date(nyYear, 0, 2))); // Mon 2 Jan
+        }
+      }
+      return set;
+    }
+
+    // ---------------------------------------------------------------------
+    // First render
+    // ---------------------------------------------------------------------
+    applySingleFilterMode(null);
+    syncFilterButtonStates();
+    render();
+  </script>
 </body>
 </html>

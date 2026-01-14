@@ -148,7 +148,7 @@
             border-radius: 999px;
         }
 
-        /* QR Modal */
+        /* QR Modals */
         .qr-modal {
             position: fixed;
             inset: 0;
@@ -192,36 +192,42 @@
 
     <div class="apps-grid">
 
-        <!-- 1. Calendar -->
-        <a href="https://frakntoastr.github.io/Ileostomy-Association/calendar/index.html" class="app-card">
-            <div class="app-icon icon-standard">📅</div>
-            <h2 class="app-title">Calendar</h2>
-            <p class="app-description">Calendar for Ileostomy Committee.</p>
-            <span class="launch-button">Launch App</span>
-        </a>
-
-        <!-- 2. Mobile Calendar -->
+        <!-- 0. App Launcher QR -->
         <div class="app-card">
             <span class="mobile-badge">Recommended on phones</span>
-            <div class="app-icon icon-mobile">📱📅</div>
-            <h2 class="app-title">Mobile Calendar</h2>
+            <div class="app-icon icon-mobile">📲</div>
+            <h2 class="app-title">App Launcher</h2>
             <p class="app-description">
-                Mobile-optimised calendar for phones.<br>
-                <strong>QR code available for quick access.</strong>
+                Scan to open the Ileostomy Association app launcher on your phone.
             </p>
-
             <div class="button-row">
-                <a href="https://frakntoastr.github.io/Ileostomy-Association/calendar/index-v2.html"
-                   class="launch-button">
-                    Launch App
-                </a>
-                <button class="qr-button" id="showQrBtn">
+                <button class="qr-button" id="showLauncherQrBtn">
                     Show QR Code
                 </button>
             </div>
         </div>
 
-        <!-- 3. Support Heatmap -->
+        <!-- 1. Calendar -->
+        <div class="app-card">
+            <span class="mobile-badge">Recommended on phones</span>
+            <div class="app-icon icon-mobile">📅</div>
+            <h2 class="app-title">Calendar</h2>
+            <p class="app-description">
+                Mobile-optimised calendar for phones.<br>
+                <strong>QR code available for quick access.</strong>
+            </p>
+            <div class="button-row">
+                <a href="https://frakntoastr.github.io/Ileostomy-Association/calendar/index-v2.html"
+                   class="launch-button">
+                    Launch App
+                </a>
+                <button class="qr-button" id="showCalendarQrBtn">
+                    Show QR Code
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. Support Heatmap -->
         <a href="https://frakntoastr.github.io/Ileostomy-Association/support-heatmap/index.html" class="app-card">
             <div class="app-icon icon-standard">🌍</div>
             <h2 class="app-title">Support Heatmap</h2>
@@ -231,7 +237,7 @@
             <span class="launch-button">Launch App</span>
         </a>
 
-        <!-- 4. QR Generator -->
+        <!-- 3. QR Generator -->
         <a href="https://frakntoastr.github.io/Ileostomy-Association/qr-generator/index.html" class="app-card">
             <div class="app-icon icon-standard">📱</div>
             <h2 class="app-title">QR Generator</h2>
@@ -244,24 +250,38 @@
     </div>
 </div>
 
-<!-- QR Modal -->
-<div class="qr-modal" id="qrModal">
+<!-- QR Modals -->
+<div class="qr-modal" id="launcherQrModal">
+    <img src="https://frakntoastr.github.io/Ileostomy-Association/assets/qr/IASA-launcher.png"
+         alt="App Launcher QR Code">
+</div>
+
+<div class="qr-modal" id="calendarQrModal">
     <img src="https://frakntoastr.github.io/Ileostomy-Association/assets/qr/mobile-calendar-qr.png"
-         alt="Mobile Calendar QR Code">
+         alt="Calendar QR Code">
 </div>
 
 <script>
-    const showQrBtn = document.getElementById("showQrBtn");
-    const modal = document.getElementById("qrModal");
+    const launcherBtn = document.getElementById("showLauncherQrBtn");
+    const launcherModal = document.getElementById("launcherQrModal");
 
-    showQrBtn.addEventListener("click", () => {
-        modal.classList.add("active");
+    const calendarBtn = document.getElementById("showCalendarQrBtn");
+    const calendarModal = document.getElementById("calendarQrModal");
+
+    launcherBtn.addEventListener("click", () => {
+        launcherModal.classList.add("active");
     });
 
-    modal.addEventListener("click", (e) => {
-        if (e.target === modal) {
-            modal.classList.remove("active");
-        }
+    calendarBtn.addEventListener("click", () => {
+        calendarModal.classList.add("active");
+    });
+
+    document.querySelectorAll(".qr-modal").forEach(modal => {
+        modal.addEventListener("click", e => {
+            if (e.target === modal) {
+                modal.classList.remove("active");
+            }
+        });
     });
 </script>
 </body>

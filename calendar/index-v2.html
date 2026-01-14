@@ -747,21 +747,26 @@
       } else if (easter) {
         labelLines.push("Easter");
       } else {
+        // Always include event labels first (no emojis)
         if (publicholidayActual) labelLines.push("Public Holiday");
         if (agm) labelLines.push("AGM");
         if (bbq) labelLines.push("BBQ");
         if (education) labelLines.push("Education: " + educationLocation);
         if (committee) labelLines.push("Comm.");
 
-        if (admin) {
-          labelLines.push("Closed (Admin Day)");
-        } else if (open && clinic) {
-          labelLines.push("Open");
-          labelLines.push("Clinic");
-        } else if (open) {
-          labelLines.push("Open");
-        } else if (closed) {
-          labelLines.push("Closed");
+        // IMPORTANT RULE UPDATE:
+        // If this is an actual Public Holiday day, do NOT show any base operational labels (Open/Clinic/Closed/Admin).
+        if (!publicholidayActual) {
+          if (admin) {
+            labelLines.push("Closed (Admin Day)");
+          } else if (open && clinic) {
+            labelLines.push("Open");
+            labelLines.push("Clinic");
+          } else if (open) {
+            labelLines.push("Open");
+          } else if (closed) {
+            labelLines.push("Closed");
+          }
         }
       }
 

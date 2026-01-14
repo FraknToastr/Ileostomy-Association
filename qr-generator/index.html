@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>QR Code Generator — Full Features</title>
 
 <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
@@ -14,6 +14,9 @@
         --text: #222;
         --input-bg: #fff;
         --input-border: #ccc;
+        --btn: #0078ff;
+        --btn-hover: #0060cc;
+        --btn-secondary: #444;
     }
     body.dark {
         --bg: #1b1b1b;
@@ -21,6 +24,7 @@
         --text: #eee;
         --input-bg: #333;
         --input-border: #555;
+        --btn-secondary: #666;
     }
 
     body {
@@ -40,7 +44,44 @@
         box-shadow: 0 4px 20px rgba(0,0,0,0.2);
     }
 
-    h2 { text-align: center; margin-top: 0; }
+    /* ---------------- Header (aligned + centered title) ---------------- */
+    .header-row {
+        display: grid;
+        grid-template-columns: 40px 1fr 40px; /* left spacer, title, toggle */
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .header-title {
+        margin: 0;
+        text-align: center;
+        font-size: 22px;
+        line-height: 1.2;
+    }
+
+    /* Icon-only theme toggle */
+    #themeToggle {
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 10px;
+        background: var(--btn-secondary);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+    #themeToggle:hover {
+        filter: brightness(1.05);
+    }
+    #themeToggle svg {
+        width: 20px;
+        height: 20px;
+        display: block;
+        fill: #fff;
+    }
 
     label {
         font-weight: bold;
@@ -67,21 +108,27 @@
     .color-row { display: flex; gap: 10px; }
     .color-row div { flex: 1; }
 
-    button {
-        width: 100%;
-        background: #0078ff;
-        padding: 12px;
+    /* Buttons: 3 per row, 2 rows for 5 buttons */
+    .button-grid {
         margin-top: 16px;
-        border: none;
-        border-radius: 8px;
-        color: white;
-        cursor: pointer;
-        font-size: 16px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
     }
 
-    button:hover { background: #0060cc; }
-
-    #themeToggle { margin-bottom: 12px; background: #444; }
+    button.action-btn {
+        width: 100%;
+        background: var(--btn);
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 14px;   /* slightly reduced for 3-wide layout */
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+    button.action-btn:hover { background: var(--btn-hover); }
 
     .preview {
         margin-top: 20px;
@@ -93,21 +140,53 @@
         border-radius: 12px;
         padding: 10px;
     }
+
+    /* ---------------- Responsive collapse for mobile ---------------- */
+    @media (max-width: 520px) {
+        body { padding: 12px; }
+        .container { width: 100%; padding: 16px; }
+
+        /* Header: keep title readable, toggle stays right */
+        .header-row {
+            grid-template-columns: 0px 1fr 40px; /* remove left spacer */
+            margin-bottom: 10px;
+        }
+        .header-title { font-size: 20px; text-align: left; }
+
+        /* Buttons collapse to 2 per row on mobile */
+        .button-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        button.action-btn { font-size: 13px; padding: 10px 8px; }
+    }
+
+    @media (max-width: 360px) {
+        /* Ultra small: buttons stack */
+        .button-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 </head>
 <body>
 
 <div class="container">
 
-    <button id="themeToggle">Toggle Dark/Light</button>
+    <div class="header-row">
+        <div aria-hidden="true"></div>
 
-    <h2>QR Code Generator</h2>
+        <h2 class="header-title">QR Code Generator</h2>
+
+        <button id="themeToggle" type="button" aria-label="Toggle dark/light mode" title="Toggle dark/light mode">
+            <!-- Icon injected by JS -->
+        </button>
+    </div>
 
     <label>Text or URL</label>
-    <input id="qrInput" type="text" placeholder="Enter text or URL">
+    <input id="qrInput" type="text" placeholder="Enter text or URL" />
 
     <label>Logo (optional)</label>
-    <input id="logoInput" type="file" accept="image/*" onchange="drawLogoAndSafeZone()">
+    <input id="logoInput" type="file" accept="image/*" onchange="drawLogoAndSafeZone()" />
 
     <label>Error Correction Level</label>
     <select id="qrLevel">
@@ -120,19 +199,19 @@
     <div class="color-row">
         <div>
             <label>QR Colour</label>
-            <input type="color" id="qrColor" value="#000000">
+            <input type="color" id="qrColor" value="#000000" />
         </div>
         <div>
             <label>Background</label>
-            <input type="color" id="qrBG" value="#ffffff">
+            <input type="color" id="qrBG" value="#ffffff" />
         </div>
     </div>
 
     <label>Logo Size (% of QR)</label>
-    <input id="logoSize" type="range" min="10" max="30" value="20" oninput="drawLogoAndSafeZone()">
+    <input id="logoSize" type="range" min="10" max="30" value="20" oninput="drawLogoAndSafeZone()" />
 
     <label>Safe Zone (px)</label>
-    <input id="safeZone" type="range" min="0" max="40" value="6" oninput="drawLogoAndSafeZone()">
+    <input id="safeZone" type="range" min="0" max="40" value="6" oninput="drawLogoAndSafeZone()" />
 
     <label>Export Size</label>
     <select id="exportSize">
@@ -141,13 +220,13 @@
         <option value="4096">4096 px</option>
     </select>
 
-    <button onclick="generateQR()">Generate QR</button>
-
-    <button onclick="exportPNG()">Download PNG</button>
-    <button onclick="exportSVG()">Download SVG</button>
-
-    <button onclick="saveStyle()">Save Style</button>
-    <button onclick="loadStyle()">Load Style</button>
+    <div class="button-grid">
+        <button class="action-btn" onclick="generateQR()">Generate QR</button>
+        <button class="action-btn" onclick="exportPNG()">Download PNG</button>
+        <button class="action-btn" onclick="exportSVG()">Download SVG</button>
+        <button class="action-btn" onclick="saveStyle()">Save Style</button>
+        <button class="action-btn" onclick="loadStyle()">Load Style</button>
+    </div>
 
     <div class="preview">
         <canvas id="qrCanvas" width="300" height="300"></canvas>
@@ -157,9 +236,6 @@
 <script>
     const canvas = document.getElementById("qrCanvas");
     const ctx = canvas.getContext("2d");
-
-    const themeToggle = document.getElementById("themeToggle");
-    themeToggle.onclick = () => document.body.classList.toggle("dark");
 
     // Base QR encoder (off the visible canvas)
     let qr = new QRious({
@@ -178,7 +254,7 @@
     function generateQR() {
         const text = document.getElementById("qrInput").value.trim();
         if (!text) {
-            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             return;
         }
 
@@ -192,17 +268,13 @@
         drawLogoAndSafeZone();
     }
 
-    // --- Draw logo + safe zone on preview (called by Generate + sliders + logo change) ---
+    // Draw logo + safe zone on preview (called by Generate + sliders + logo change)
     function drawLogoAndSafeZone() {
-        // Always draw the QR first
         drawBaseQR();
 
         const logoInput = document.getElementById("logoInput");
         const logoFile = logoInput.files && logoInput.files[0];
-        if (!logoFile) {
-            // No logo: nothing else to draw
-            return;
-        }
+        if (!logoFile) return;
 
         const logoSizeSlider = document.getElementById("logoSize");
         const safeZoneSlider = document.getElementById("safeZone");
@@ -212,14 +284,14 @@
             // Redraw QR again inside onload to avoid async race
             drawBaseQR();
 
-            const pct  = Number(logoSizeSlider.value) / 100;
+            const pct = Number(logoSizeSlider.value) / 100;
             const safe = Number(safeZoneSlider.value);
 
             const size = canvas.width * pct;
             const cx = canvas.width / 2;
             const cy = canvas.height / 2;
-            const x  = cx - size / 2;
-            const y  = cy - size / 2;
+            const x = cx - size / 2;
+            const y = cy - size / 2;
 
             // Safe zone: filled circle behind logo
             if (safe > 0) {
@@ -229,17 +301,17 @@
                 ctx.fill();
             }
 
-            // Draw logo in the centre (PNG transparency is naturally respected)
+            // Draw logo in the centre (PNG transparency naturally respected)
             ctx.drawImage(logo, x, y, size, size);
         };
         logo.src = URL.createObjectURL(logoFile);
     }
 
-    // --- PNG export ---
+    // PNG export
     function exportPNG() {
         const exportSize = Number(document.getElementById("exportSize").value);
-        const logoInput  = document.getElementById("logoInput");
-        const logoFile   = logoInput.files && logoInput.files[0];
+        const logoInput = document.getElementById("logoInput");
+        const logoFile = logoInput.files && logoInput.files[0];
 
         const off = document.createElement("canvas");
         off.width = exportSize;
@@ -274,14 +346,14 @@
             offCtx.clearRect(0, 0, exportSize, exportSize);
             offCtx.drawImage(qr.canvas, 0, 0, exportSize, exportSize);
 
-            const pct  = Number(logoSizeSlider.value) / 100;
+            const pct = Number(logoSizeSlider.value) / 100;
             const safe = Number(safeZoneSlider.value);
 
             const size = exportSize * pct;
-            const cx   = exportSize / 2;
-            const cy   = exportSize / 2;
-            const x    = cx - size / 2;
-            const y    = cy - size / 2;
+            const cx = exportSize / 2;
+            const cy = exportSize / 2;
+            const x = cx - size / 2;
+            const y = cy - size / 2;
 
             if (safe > 0) {
                 offCtx.beginPath();
@@ -308,13 +380,13 @@
         link.click();
     }
 
-    // --- SVG export (no logo – as with your original behaviour) ---
+    // SVG export (no logo – original behaviour)
     function exportSVG() {
-        const text  = document.getElementById("qrInput").value.trim();
+        const text = document.getElementById("qrInput").value.trim();
         const level = document.getElementById("qrLevel").value;
-        const fg    = document.getElementById("qrColor").value;
-        const bg    = document.getElementById("qrBG").value;
-        const size  = Number(document.getElementById("exportSize").value);
+        const fg = document.getElementById("qrColor").value;
+        const bg = document.getElementById("qrBG").value;
+        const size = Number(document.getElementById("exportSize").value);
 
         const svgQR = new QRious({
             value: text,
@@ -331,7 +403,7 @@
         link.click();
     }
 
-    // --- Save / Load style ---
+    // Save / Load style
     function saveStyle() {
         const obj = {
             qrColor: document.getElementById("qrColor").value,
@@ -353,18 +425,53 @@
             return;
         }
 
-        document.getElementById("qrColor").value    = obj.qrColor;
-        document.getElementById("qrBG").value       = obj.qrBG;
-        document.getElementById("logoSize").value   = obj.logoSize;
-        document.getElementById("safeZone").value   = obj.safeZone;
-        document.getElementById("qrLevel").value    = obj.level;
+        document.getElementById("qrColor").value = obj.qrColor;
+        document.getElementById("qrBG").value = obj.qrBG;
+        document.getElementById("logoSize").value = obj.logoSize;
+        document.getElementById("safeZone").value = obj.safeZone;
+        document.getElementById("qrLevel").value = obj.level;
         document.getElementById("exportSize").value = obj.exportSize;
 
         if (obj.theme) document.body.classList.add("dark");
         else document.body.classList.remove("dark");
 
         generateQR();
+        syncThemeIcon();
     }
+
+    /* ---------------- Icon-only toggle logic ---------------- */
+    const themeToggle = document.getElementById("themeToggle");
+
+    function sunIconSVG() {
+        return `
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12Zm0-16a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1Zm0 18a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1ZM4.22 5.64a1 1 0 0 1 1.41 0l.7.7a1 1 0 1 1-1.41 1.41l-.7-.7a1 1 0 0 1 0-1.41Zm13.45 13.45a1 1 0 0 1 1.41 0l.7.7a1 1 0 1 1-1.41 1.41l-.7-.7a1 1 0 0 1 0-1.41ZM2 13a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1Zm18 0a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1ZM4.22 20.36a1 1 0 0 1 0-1.41l.7-.7a1 1 0 1 1 1.41 1.41l-.7.7a1 1 0 0 1-1.41 0ZM17.67 6.95a1 1 0 0 1 0-1.41l.7-.7a1 1 0 0 1 1.41 1.41l-.7.7a1 1 0 0 1-1.41 0Z"/>
+            </svg>
+        `;
+    }
+
+    function moonIconSVG() {
+        return `
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M21 14.5A8.5 8.5 0 0 1 9.5 3a7 7 0 1 0 11.5 11.5Z"/>
+            </svg>
+        `;
+    }
+
+    function syncThemeIcon() {
+        const isDark = document.body.classList.contains("dark");
+        themeToggle.innerHTML = isDark ? sunIconSVG() : moonIconSVG();
+        themeToggle.title = isDark ? "Switch to light mode" : "Switch to dark mode";
+        themeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+    }
+
+    themeToggle.onclick = () => {
+        document.body.classList.toggle("dark");
+        syncThemeIcon();
+    };
+
+    // Initialize icon on load
+    syncThemeIcon();
 </script>
 
 </body>

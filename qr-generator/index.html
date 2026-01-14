@@ -47,7 +47,7 @@
     /* ---------------- Header (aligned + centered title) ---------------- */
     .header-row {
         display: grid;
-        grid-template-columns: 40px 1fr 40px; /* left spacer, title, toggle */
+        grid-template-columns: 40px 1fr 40px;
         align-items: center;
         gap: 10px;
         margin-bottom: 12px;
@@ -124,7 +124,7 @@
         border-radius: 8px;
         color: #fff;
         cursor: pointer;
-        font-size: 14px;   /* slightly reduced for 3-wide layout */
+        font-size: 14px;
         line-height: 1.2;
         white-space: nowrap;
     }
@@ -146,14 +146,12 @@
         body { padding: 12px; }
         .container { width: 100%; padding: 16px; }
 
-        /* Header: keep title readable, toggle stays right */
         .header-row {
-            grid-template-columns: 0px 1fr 40px; /* remove left spacer */
+            grid-template-columns: 0px 1fr 40px;
             margin-bottom: 10px;
         }
         .header-title { font-size: 20px; text-align: left; }
 
-        /* Buttons collapse to 2 per row on mobile */
         .button-grid {
             grid-template-columns: repeat(2, 1fr);
         }
@@ -161,7 +159,6 @@
     }
 
     @media (max-width: 360px) {
-        /* Ultra small: buttons stack */
         .button-grid {
             grid-template-columns: 1fr;
         }
@@ -174,12 +171,8 @@
 
     <div class="header-row">
         <div aria-hidden="true"></div>
-
         <h2 class="header-title">QR Code Generator</h2>
-
-        <button id="themeToggle" type="button" aria-label="Toggle dark/light mode" title="Toggle dark/light mode">
-            <!-- Icon injected by JS -->
-        </button>
+        <button id="themeToggle" type="button" aria-label="Toggle dark/light mode" title="Toggle dark/light mode"></button>
     </div>
 
     <label>Text or URL</label>
@@ -220,6 +213,10 @@
         <option value="4096">4096 px</option>
     </select>
 
+    <!-- NEW: File name parameter -->
+    <label>File Name</label>
+    <input id="fileName" type="text" value="qr-code" placeholder="qr-code" />
+
     <div class="button-grid">
         <button class="action-btn" onclick="generateQR()">Generate QR</button>
         <button class="action-btn" onclick="exportPNG()">Download PNG</button>
@@ -245,6 +242,11 @@
         foreground: "#000000",
         background: "#ffffff"
     });
+
+    function getBaseFileName() {
+        const raw = (document.getElementById("fileName").value || "").trim();
+        return raw ? raw : "qr-code";
+    }
 
     function drawBaseQR() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -329,8 +331,10 @@
 
         offCtx.drawImage(qr.canvas, 0, 0, exportSize, exportSize);
 
+        const baseName = getBaseFileName();
+
         if (!logoFile) {
-            downloadCanvas(off, "png");
+            downloadCanvas(off, "png", baseName);
             // restore preview size
             qr.set({ size: 300 });
             drawLogoAndSafeZone();
@@ -364,7 +368,7 @@
 
             offCtx.drawImage(logo, x, y, size, size);
 
-            downloadCanvas(off, "png");
+            downloadCanvas(off, "png", baseName);
 
             // restore preview size & redraw
             qr.set({ size: 300 });
@@ -373,9 +377,9 @@
         logo.src = URL.createObjectURL(logoFile);
     }
 
-    function downloadCanvas(c, format) {
+    function downloadCanvas(c, format, baseName) {
         const link = document.createElement("a");
-        link.download = `qr_code.${format}`;
+        link.download = `${baseName}.${format}`;
         link.href = c.toDataURL("image/" + format);
         link.click();
     }
@@ -397,8 +401,10 @@
             mime: "image/svg+xml"
         });
 
+        const baseName = getBaseFileName();
+
         const link = document.createElement("a");
-        link.download = "qr_code.svg";
+        link.download = `${baseName}.svg`;
         link.href = svgQR.toDataURL();
         link.click();
     }
@@ -412,6 +418,7 @@
             safeZone: document.getElementById("safeZone").value,
             level: document.getElementById("qrLevel").value,
             exportSize: document.getElementById("exportSize").value,
+            fileName: (document.getElementById("fileName").value || "qr-code"),
             theme: document.body.classList.contains("dark")
         };
         localStorage.setItem("qrStyle", JSON.stringify(obj));
@@ -431,6 +438,8 @@
         document.getElementById("safeZone").value = obj.safeZone;
         document.getElementById("qrLevel").value = obj.level;
         document.getElementById("exportSize").value = obj.exportSize;
+
+        document.getElementById("fileName").value = (obj.fileName || "qr-code");
 
         if (obj.theme) document.body.classList.add("dark");
         else document.body.classList.remove("dark");

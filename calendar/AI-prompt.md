@@ -498,7 +498,9 @@ body.filters-collapsed .filter-group{display:none;}
 @media(max-width:360px){
   .calendar{gap:1px;}
   .day{min-height:46px;padding:2px 3px;}
-
+  .day-events{font-size:.5em;}
+}
+```
 ---
 
 ## 12) Final Instruction
@@ -619,9 +621,3 @@ To avoid ambiguity about how far the calendar “covers,” define explicit gene
 - Christmas/New Year closure blocks are generated for a defined year range (e.g. **2024–2031**, including spill into early **2032** for the closure period).
 - If the master spec wants the calendar to be “infinite,” the rule should explicitly say:
   - UI navigation is unbounded, but special-day generation ranges must be specified and/or extended.
-
-
-
-
-  .day-events{font-size:.5em;}
-}

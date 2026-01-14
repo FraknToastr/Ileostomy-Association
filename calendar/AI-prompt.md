@@ -570,6 +570,57 @@ If the spec includes “implementation notes” sections, add this guardrail:
   - or use a normal object `{}`.
 This prevents filter logic from silently failing.
 
+---
+
+## Additional Spec Rules (Post-Implementation Clarifications)
+
+These rules were discovered/required during implementation and should be added to the master spec so future rebuilds match expected behaviour.
+
+### Nurse Clinic Availability (Overrides Base Clinic Cadence)
+- The stoma nurse clinic schedule is conditional on nurse availability.
+- **Nurse last working day:** **2026-01-30** (Fri).
+- **Clinic must NOT appear on any date after 2026-01-30 until return**, even if the base clinic cadence would normally place a clinic on:
+  - Wednesdays
+  - 3rd Saturdays
+  - last Friday of the month
+- **Nurse leave period (inclusive):** **2026-01-31 to 2026-06-30**.
+- **Nurse return date:** **2026-07-01** (Wed).
+  - Clinic resumes from the **next scheduled clinic day on/after 2026-07-01** according to the usual schedule (Wed + 3rd Sat + last Fri).
+- During nurse leave, if a day would normally be `Open + Clinic`, it must display **Open only** (clinic suppressed), and keep the normal `Open` colouring.
+
+### Public Holiday Filter: “Filter-only” Matching vs Visual Styling
+Public holiday filtering/navigation has separate rules from the visual layer:
+
+- **Public Holiday (visual):**
+  - Only dates explicitly listed in `PUBLIC_HOLIDAY_DATES` display the `Public Holiday` label and use the `publicholiday-day` colour.
+  - Do not visually convert Easter or Christmas/New Year closure days into “Public Holiday” styling.
+
+- **Public Holiday (filter + nav only):**
+  - The Public Holiday filter matches:
+    1) all explicit `PUBLIC_HOLIDAY_DATES`, plus
+    2) **actual South Australian public holidays that occur during the Easter period**, and
+    3) **actual South Australian public holidays that occur during the Christmas/New Year period**
+  - When filtered, **Easter days must remain Easter styling** and **Christmas/New Year closure days must remain closure styling**, even though they match the Public Holiday filter.
+
+### Event Filter Auto-Jump Behaviour
+- When a user activates a filter (taps/clicks the filter button):
+  - If that event category **does not occur within the currently displayed month**, the calendar must **automatically jump forward** to the **next month that contains at least one occurrence** of that category.
+  - The scan must be **bounded to 12 months**.
+  - This auto-jump must **not** apply focus-outline highlighting (focus highlight is reserved for Prev/Next event navigation arrows).
+
+### Clinic Filter / Open Filter Relationship
+- `Open/Clinic` uses the **same base colour theme as Open**.
+- `Open/Clinic` is a filter category for days that have clinic service **in addition to being open**.
+- If clinic is suppressed (e.g., nurse leave), those days must **not** match the clinic filter.
+
+### Script Generation Ranges (Explicit)
+To avoid ambiguity about how far the calendar “covers,” define explicit generation ranges:
+- Easter blocks are generated for a defined year range (e.g. **2025–2031**).
+- Christmas/New Year closure blocks are generated for a defined year range (e.g. **2024–2031**, including spill into early **2032** for the closure period).
+- If the master spec wants the calendar to be “infinite,” the rule should explicitly say:
+  - UI navigation is unbounded, but special-day generation ranges must be specified and/or extended.
+
+
 
 
   .day-events{font-size:.5em;}

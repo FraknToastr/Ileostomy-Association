@@ -20,11 +20,80 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            isolation: isolate;
+        }
+
+        .plasma {
+            position: fixed;
+            z-index: -1;
+            pointer-events: none;
+            border-radius: 50%;
+            opacity: 0.72;
+            filter: blur(54px);
+            will-change: transform, filter;
+        }
+
+        .plasma-a {
+            width: min(82vw, 900px);
+            aspect-ratio: 1;
+            top: -28vh;
+            left: -18vw;
+            background: radial-gradient(circle, rgba(255, 79, 118, 0.94) 0%, rgba(255, 79, 118, 0.3) 30%, rgba(255, 79, 118, 0) 68%);
+            animation: plasma-drift-a 17s ease-in-out infinite;
+        }
+
+        .plasma-b {
+            width: min(86vw, 940px);
+            aspect-ratio: 1;
+            right: -22vw;
+            bottom: -34vh;
+            background: radial-gradient(circle, rgba(255, 132, 62, 0.94) 0%, rgba(255, 132, 62, 0.3) 31%, rgba(255, 132, 62, 0) 70%);
+            animation: plasma-drift-b 21s ease-in-out infinite;
+        }
+
+        @keyframes plasma-drift-a {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            36% {
+                transform: translate(22vw, 22vh) scale(1.2);
+            }
+
+            70% {
+                transform: translate(34vw, 8vh) scale(1.1);
+            }
+
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+        }
+
+        @keyframes plasma-drift-b {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            38% {
+                transform: translate(-22vw, -22vh) scale(1.16);
+            }
+
+            72% {
+                transform: translate(-8vw, -32vh) scale(1.22);
+            }
+
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
         }
 
         .container {
             max-width: 1000px;
             width: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         .header {
@@ -171,9 +240,21 @@
             border-radius: 16px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
         }
+
+        @media (prefers-reduced-motion: reduce) {
+            .plasma {
+                animation: none;
+            }
+
+            .app-card {
+                transition: none;
+            }
+        }
     </style>
 </head>
 <body>
+<div class="plasma plasma-a" aria-hidden="true"></div>
+<div class="plasma plasma-b" aria-hidden="true"></div>
 <div class="container">
     <div class="header">
         <h1>Ileostomy Association</h1>
@@ -245,6 +326,47 @@
 </div>
 
 <script>
+    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const rainbowHues = [0, 42, 94, 158, 210, 265, 315];
+
+    function animatePlasmaColour(plasma, initialHue) {
+        let currentHue = initialHue;
+        plasma.style.filter = `blur(54px) hue-rotate(${currentHue}deg)`;
+
+        function transition() {
+            if (reducedMotionQuery.matches) {
+                plasma.style.filter = "blur(54px)";
+                return;
+            }
+
+            let nextHue = rainbowHues[Math.floor(Math.random() * rainbowHues.length)];
+            while (nextHue === currentHue) {
+                nextHue = rainbowHues[Math.floor(Math.random() * rainbowHues.length)];
+            }
+
+            const duration = 6000 + Math.random() * 5000;
+            const animation = plasma.animate(
+                [
+                    { filter: `blur(54px) hue-rotate(${currentHue}deg)` },
+                    { filter: `blur(54px) hue-rotate(${nextHue}deg)` }
+                ],
+                { duration, easing: "ease-in-out", fill: "forwards" }
+            );
+
+            animation.finished.then(() => {
+                currentHue = nextHue;
+                plasma.style.filter = `blur(54px) hue-rotate(${currentHue}deg)`;
+                animation.cancel();
+                transition();
+            }).catch(() => {});
+        }
+
+        transition();
+    }
+
+    animatePlasmaColour(document.querySelector(".plasma-a"), 0);
+    animatePlasmaColour(document.querySelector(".plasma-b"), 42);
+
     const calendarBtn = document.getElementById("showCalendarQrBtn");
     const calendarModal = document.getElementById("calendarQrModal");
 

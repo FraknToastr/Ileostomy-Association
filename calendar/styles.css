@@ -95,6 +95,10 @@
     .day.focus{outline:3px solid rgba(0,0,0,.55);outline-offset:-3px;}
     /* Collapsed filters */
     body.filters-collapsed .filter-group{display:none;}
+    body.filters-collapsed .main-content{flex-direction:column;}
+    body.filters-collapsed .sidebar{
+      width:100%;border-right:none;border-bottom:1px solid #e0e0e0;
+    }
     /* Single-filter mode hides others */
     .single-hide{display:none !important;}
     /* Mobile tuning */

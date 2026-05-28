@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ileostomy Association South Australia</title>
+  <meta name="description" content="Static one-page mock-up for Ileostomy Association South Australia." />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="app-shell">
+    <main id="main" class="hero-layout">
+      <div class="hero-overlay"></div>
+
+      <header class="site-header">
+        <div class="brand-pill" aria-label="Ileostomy Association South Australia">
+          <img src="logo-iasa-mark.svg" alt="" class="brand-logo" />
+          <strong>Ileostomy Association South Australia</strong>
+        </div>
+
+        <div class="access-row" aria-label="Accessibility and utility controls">
+          <button class="access-pill" type="button" data-action="shrink-text">A−</button>
+          <button class="access-pill" type="button" data-action="grow-text">A+</button>
+          <button class="access-pill access-icon" type="button" data-action="toggle-contrast" aria-pressed="false" aria-label="Toggle contrast">◐</button>
+          <button class="access-pill" type="button" data-toast="Captions options would appear here.">CC</button>
+          <button class="access-pill access-icon" type="button" data-toast="Reading support would start here." aria-label="Read aloud">🔊</button>
+          <button class="access-pill" type="button" data-toast="Language choices would appear here.">EN</button>
+        </div>
+      </header>
+
+      <section class="info-ticker" aria-label="Important messages">
+        <div class="ticker-chip">
+          <span class="ticker-icon">🍃</span>
+          <div class="ticker-window">
+            <div class="ticker-track" id="tickerTrack"></div>
+          </div>
+          <button class="ticker-next" id="tickerNext" type="button" aria-label="Next message">›</button>
+        </div>
+      </section>
+
+      <nav class="bottom-dock expanded" id="bottomDock" aria-label="Primary actions">
+        <button class="dock-item dock-action" type="button" data-panel="orderPanel">
+          <span>Order</span>
+        </button>
+
+        <button class="dock-item dock-action" type="button" data-panel="callPanel">
+          <span>Call</span>
+        </button>
+
+        <button class="dock-item dock-action has-submenu" type="button" data-submenu="visitSubmenu" aria-expanded="false">
+          <span>Visit</span>
+        </button>
+
+        <button class="dock-item dock-action" type="button" data-panel="calendarPanel">
+          <span>Dates</span>
+        </button>
+
+        <button class="dock-item dock-action has-submenu" type="button" data-submenu="helpSubmenu" aria-expanded="false">
+          <span>Need Help</span>
+        </button>
+
+        <button class="dock-item dock-action has-submenu" type="button" data-submenu="communitySubmenu" aria-expanded="false">
+          <span>Community</span>
+        </button>
+
+        <button class="dock-item dock-toggle dock-close" id="collapseDockButton" type="button" aria-label="Collapse menu">
+          <span>Close</span>
+        </button>
+
+        <button class="dock-item dock-toggle dock-menu" id="expandDockButton" type="button" aria-label="Open menu">
+          <span>Menu</span>
+        </button>
+
+        <div class="submenu-stack" id="visitSubmenu" hidden>
+          <button class="submenu-tile" type="button" data-panel="visitPanel"><span>Office</span></button>
+          <button class="submenu-tile" type="button" data-panel="directionsPanel"><span>Directions</span></button>
+        </div>
+
+        <div class="submenu-stack" id="helpSubmenu" hidden>
+          <button class="submenu-tile" type="button" data-panel="supportPanel"><span>Support</span></button>
+          <button class="submenu-tile" type="button" data-panel="formsPanel"><span>Forms</span></button>
+          <button class="submenu-tile" type="button" data-panel="memberPanel"><span>Members</span></button>
+        </div>
+
+        <div class="submenu-stack" id="communitySubmenu" hidden>
+          <button class="submenu-tile" type="button" data-panel="donatePanel"><span>Donate</span></button>
+          <button class="submenu-tile" type="button" data-panel="newsPanel"><span>Updates</span></button>
+          <button class="submenu-tile" type="button" data-panel="contactPanel"><span>Contact</span></button>
+        </div>
+      </nav>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <h2 id="modalTitle">Details</h2>
+        <button class="modal-close" id="closeModal" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" aria-live="polite"></div>
+
+  <template id="orderPanel">
+    <div class="panel-block">
+      <p class="panel-label">Supplies</p>
+      <h3>Ordering made simple.</h3>
+      <div class="panel-tiles two-col">
+        <div class="panel-tile"><img src="icon-package.svg" alt="" /><strong>Choose</strong><span>Your items.</span></div>
+        <div class="panel-tile"><img src="icon-form.svg" alt="" /><strong>Order</strong><span>Monthly form.</span></div>
+        <div class="panel-tile"><img src="icon-map.svg" alt="" /><strong>Collect</strong><span>Mile End.</span></div>
+        <div class="panel-tile"><img src="icon-phone.svg" alt="" /><strong>Need help?</strong><span>Call us.</span></div>
+      </div>
+      <p class="panel-note">Mock-up only. Nothing is submitted.</p>
+    </div>
+  </template>
+
+  <template id="callPanel">
+    <div class="panel-block">
+      <p class="panel-label">Call</p>
+      <h3>(08) 8234 2678</h3>
+      <p class="panel-note">This demo looks active, but it does not make a real call.</p>
+    </div>
+  </template>
+
+  <template id="visitPanel">
+    <div class="panel-block">
+      <p class="panel-label">Visit</p>
+      <h3>73 Roebuck Street, Mile End SA 5031</h3>
+      <div class="panel-tiles one-col">
+        <div class="panel-tile"><img src="icon-calendar.svg" alt="" /><strong>Office hours</strong><span>Friendly help during office hours.</span></div>
+        <div class="panel-tile"><img src="icon-map.svg" alt="" /><strong>Local</strong><span>Easy to find in Mile End.</span></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="directionsPanel">
+    <div class="panel-block">
+      <p class="panel-label">Directions</p>
+      <h3>Mile End office</h3>
+      <div class="generic-map"><span>Map preview</span></div>
+      <p class="panel-note">A live map would open here on the real site.</p>
+    </div>
+  </template>
+
+  <template id="calendarPanel">
+    <div class="panel-block">
+      <p class="panel-label">Important dates</p>
+      <h3>May 2026</h3>
+      <div class="mock-calendar" aria-label="Generic calendar mock-up">
+        <div class="calendar-head">
+          <button type="button" aria-label="Previous month">‹</button>
+          <strong>May 2026</strong>
+          <button type="button" aria-label="Next month">›</button>
+        </div>
+        <div class="calendar-grid calendar-days">
+          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        </div>
+        <div class="calendar-grid calendar-dates">
+          <span class="muted">27</span><span class="muted">28</span><span class="muted">29</span><span class="muted">30</span><span>1</span><span>2</span><span>3</span>
+          <span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+          <span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span>
+          <span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span>
+          <span class="event">25<small>Open</small></span><span>26</span><span>27</span><span class="closed">28<small>Closed</small></span><span class="event">29<small>Orders</small></span><span class="event">30<small>Clinic</small></span><span>31</span>
+        </div>
+      </div>
+      <p class="panel-note">Generic demo calendar. No external iframe or live feed.</p>
+    </div>
+  </template>
+
+  <template id="supportPanel">
+    <div class="panel-block">
+      <p class="panel-label">Support</p>
+      <h3>We are here for you.</h3>
+      <div class="panel-tiles two-col">
+        <div class="panel-tile"><img src="icon-heart.svg" alt="" /><strong>Support</strong><span>Friendly help.</span></div>
+        <div class="panel-tile"><img src="icon-people.svg" alt="" /><strong>New here?</strong><span>Easy start.</span></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="formsPanel">
+    <div class="panel-block">
+      <p class="panel-label">Forms</p>
+      <h3>Big, simple choices.</h3>
+      <div class="panel-tiles two-col">
+        <div class="panel-tile"><img src="icon-form.svg" alt="" /><strong>Order Form</strong><span>Printable.</span></div>
+        <div class="panel-tile"><img src="icon-mail.svg" alt="" /><strong>Change Details</strong><span>Update info.</span></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="memberPanel">
+    <div class="panel-block">
+      <p class="panel-label">Members</p>
+      <h3>Practical member help.</h3>
+      <div class="panel-tiles one-col">
+        <div class="panel-tile"><img src="icon-people.svg" alt="" /><strong>Join</strong><span>Membership help.</span></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="donatePanel">
+    <div class="panel-block">
+      <p class="panel-label">Donate</p>
+      <h3>Small acts help real people.</h3>
+      <p class="panel-note">Donation options would appear here on the live site.</p>
+    </div>
+  </template>
+
+  <template id="newsPanel">
+    <div class="panel-block">
+      <p class="panel-label">Updates</p>
+      <h3>Simple local updates.</h3>
+      <div class="panel-tiles two-col">
+        <div class="panel-tile"><img src="icon-news.svg" alt="" /><strong>Saturday opening</strong><span>See dates.</span></div>
+        <div class="panel-tile"><img src="icon-package.svg" alt="" /><strong>Order deadlines</strong><span>Posted here.</span></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="contactPanel">
+    <div class="panel-block">
+      <p class="panel-label">Contact</p>
+      <h3>Talk, email or visit.</h3>
+      <div class="panel-tiles two-col">
+        <div class="panel-tile"><img src="icon-phone.svg" alt="" /><strong>Phone</strong><span>(08) 8234 2678</span></div>
+        <div class="panel-tile"><img src="icon-mail.svg" alt="" /><strong>Email</strong><span>info@ileosa.org.au</span></div>
+      </div>
+    </div>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>

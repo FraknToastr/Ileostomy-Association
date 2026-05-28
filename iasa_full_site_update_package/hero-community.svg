@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 560" role="img" aria-labelledby="title desc">
+<title id="title">Community centre illustration</title>
+<desc id="desc">A soft South Australian community centre scene with gum leaves, sunshine and people gathered near an entrance.</desc>
+<defs>
+  <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+    <stop stop-color="#d9edf5"/>
+    <stop offset="1" stop-color="#fffaf0"/>
+  </linearGradient>
+  <linearGradient id="sun" x1="0" x2="1">
+    <stop stop-color="#f2c879"/>
+    <stop offset="1" stop-color="#e89078"/>
+  </linearGradient>
+</defs>
+<rect width="760" height="560" rx="56" fill="url(#sky)"/>
+<circle cx="610" cy="90" r="62" fill="url(#sun)" opacity=".85"/>
+<path d="M0 406c117-42 212-40 306 0s208 38 454-8v162H0z" fill="#dfeee7"/>
+<path d="M148 288h464v178H148z" fill="#fffdf7"/>
+<path d="M120 286l260-150 260 150z" fill="#efe0c1"/>
+<path d="M180 314h400v152H180z" fill="#fbf8f1"/>
+<path d="M312 466v-98c0-32 26-58 58-58s58 26 58 58v98z" fill="#2e705e"/>
+<path d="M338 466v-90c0-18 14-32 32-32s32 14 32 32v90z" fill="#d9edf5" opacity=".85"/>
+<rect x="212" y="336" width="68" height="70" rx="12" fill="#d9edf5"/>
+<rect x="480" y="336" width="68" height="70" rx="12" fill="#d9edf5"/>
+<path d="M216 468c36-54 67-67 108-40 35 23 71 27 108 6 49-28 95-18 138 34z" fill="#2e705e" opacity=".16"/>
+<g transform="translate(96 112)" fill="none" stroke="#2e705e" stroke-width="9" stroke-linecap="round">
+  <path d="M66 244C26 183 19 111 63 28"/>
+  <path d="M64 92c-35-25-42-58-23-86 37 16 51 45 23 86z" fill="#2e705e" stroke="none" opacity=".82"/>
+  <path d="M72 138c43-23 75-16 97 22-37 19-69 12-97-22z" fill="#2e705e" stroke="none" opacity=".7"/>
+  <path d="M58 193c-43-14-61-40-53-78 39 8 58 34 53 78z" fill="#2e705e" stroke="none" opacity=".62"/>
+</g>
+<g transform="translate(564 142)" fill="none" stroke="#2e705e" stroke-width="8" stroke-linecap="round">
+  <path d="M40 205c25-62 20-119-17-173"/>
+  <path d="M30 76c31-26 59-28 86-5-25 30-54 32-86 5z" fill="#2e705e" stroke="none" opacity=".75"/>
+  <path d="M42 127c-31-24-36-52-14-85 29 24 34 53 14 85z" fill="#2e705e" stroke="none" opacity=".6"/>
+</g>
+<g>
+  <circle cx="258" cy="436" r="18" fill="#e89078"/>
+  <path d="M232 497c3-28 12-43 26-43s24 15 27 43z" fill="#2e705e"/>
+  <circle cx="506" cy="438" r="18" fill="#f2c879"/>
+  <path d="M480 497c3-28 12-43 26-43s24 15 27 43z" fill="#2e705e"/>
+  <circle cx="595" cy="430" r="15" fill="#e89078"/>
+  <path d="M573 492c3-25 10-39 22-39s20 14 23 39z" fill="#2e705e"/>
+</g>
+<text x="380" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#17342e">IASA</text>
+</svg>

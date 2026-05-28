@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -252,122 +253,133 @@
         }
     </style>
 </head>
+
 <body>
-<div class="plasma plasma-a" aria-hidden="true"></div>
-<div class="plasma plasma-b" aria-hidden="true"></div>
-<div class="container">
-    <div class="header">
-        <h1>Ileostomy Association of South Australia</h1>
-        <p>Support Tools & Resources</p>
-    </div>
-
-    <div class="apps-grid">
-
-        <!-- Calendar -->
-        <div class="app-card">
-            <span class="mobile-badge">Recommended on phones</span>
-            <div class="app-icon icon-mobile">📅</div>
-            <h2 class="app-title">IASA Calendar</h2>
-            <p class="app-description">
-                View upcoming Public Holidays, Education Days, Paul Martin BBQ,
-                Committee meetings, AGM, and Clinic Days.
-            </p>
-            <div class="button-row">
-                <a href="https://frakntoastr.github.io/Ileostomy-Association/calendar/index-v2.html"
-                   class="launch-button">
-                    Launch App
-                </a>
-                <button class="qr-button" id="showCalendarQrBtn">
-                    Show QR Code
-                </button>
-            </div>
+    <div class="plasma plasma-a" aria-hidden="true"></div>
+    <div class="plasma plasma-b" aria-hidden="true"></div>
+    <div class="container">
+        <div class="header">
+            <h1>Ileostomy Association of South Australia</h1>
+            <p>Support Tools & Resources</p>
         </div>
 
-        <!-- Support Heatmap -->
-        <a href="https://frakntoastr.github.io/Ileostomy-Association/support-heatmap/index.html"
-           class="app-card">
-            <div class="app-icon icon-standard">🌍</div>
-            <h2 class="app-title">Support Group Heatmap</h2>
-            <p class="app-description">
-                Find nearest Ostomate support groups and member counts by suburb or locality.
-            </p>
-            <span class="launch-button">Launch App</span>
-        </a>
+        <div class="apps-grid">
 
-        <!-- Stoma Appliance Scheme Lookup -->
-        <a href="Stoma%20Appliance%20Scheme/stoma-appliance-scheme-lookup-standalone.html"
-           class="app-card">
-            <div class="app-icon icon-standard">🔎</div>
-            <h2 class="app-title">Stoma Appliance Scheme Lookup</h2>
-            <p class="app-description">
-                Search the Stoma Appliance Scheme catalogue for products, codes, and suppliers.
-            </p>
-            <span class="launch-button">Launch App</span>
-        </a>
+            <!-- Calendar -->
+            <div class="app-card">
+                <span class="mobile-badge">Recommended on phones</span>
+                <div class="app-icon icon-mobile">📅</div>
+                <h2 class="app-title">IASA Calendar</h2>
+                <p class="app-description">
+                    View upcoming Public Holidays, Education Days, Paul Martin BBQ,
+                    Committee meetings, AGM, and Clinic Days.
+                </p>
+                <div class="button-row">
+                    <a href="https://frakntoastr.github.io/Ileostomy-Association/calendar/index-v2.html"
+                        class="launch-button">
+                        Launch App
+                    </a>
+                    <button class="qr-button" id="showCalendarQrBtn">
+                        Show QR Code
+                    </button>
+                </div>
+            </div>
 
+            <!-- Support Heatmap -->
+            <a href="https://frakntoastr.github.io/Ileostomy-Association/support-heatmap/index.html" class="app-card">
+                <div class="app-icon icon-standard">🌍</div>
+                <h2 class="app-title">Support Group Heatmap</h2>
+                <p class="app-description">
+                    Find nearest Ostomate support groups and member counts by suburb or locality.
+                </p>
+                <span class="launch-button">Launch App</span>
+            </a>
+
+            <!-- IASA Concept Website -->
+            <a href="https://frakntoastr.github.io/Ileostomy-Association/iasa_full_site_update_package/index.html"
+                class="app-card">
+                <div class="app-icon icon-standard">💡</div>
+                <h2 class="app-title">IASA Concept Website</h2>
+                <p class="app-description">
+                    Explore the new concept website design and structure for the IASA full site update.
+                </p>
+                <span class="launch-button">Launch App</span>
+            </a>
+
+            <!-- Stoma Appliance Scheme Lookup -->
+            <a href="Stoma%20Appliance%20Scheme/stoma-appliance-scheme-lookup-standalone.html" class="app-card">
+                <div class="app-icon icon-standard">🔎</div>
+                <h2 class="app-title">Stoma Appliance Scheme Lookup</h2>
+                <p class="app-description">
+                    Search the Stoma Appliance Scheme catalogue for products, codes, and suppliers.
+                </p>
+                <span class="launch-button">Launch App</span>
+            </a>
+
+        </div>
     </div>
-</div>
 
-<!-- Calendar QR Modal -->
-<div class="qr-modal" id="calendarQrModal">
-    <img src="https://frakntoastr.github.io/Ileostomy-Association/assets/qr/mobile-calendar-qr.png"
-         alt="Calendar QR Code">
-</div>
+    <!-- Calendar QR Modal -->
+    <div class="qr-modal" id="calendarQrModal">
+        <img src="https://frakntoastr.github.io/Ileostomy-Association/assets/qr/mobile-calendar-qr.png"
+            alt="Calendar QR Code">
+    </div>
 
-<script>
-    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const rainbowHues = [0, 42, 94, 158, 210, 265, 315];
+    <script>
+        const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const rainbowHues = [0, 42, 94, 158, 210, 265, 315];
 
-    function animatePlasmaColour(plasma, initialHue) {
-        let currentHue = initialHue;
-        plasma.style.filter = `blur(54px) hue-rotate(${currentHue}deg)`;
+        function animatePlasmaColour(plasma, initialHue) {
+            let currentHue = initialHue;
+            plasma.style.filter = `blur(54px) hue-rotate(${currentHue}deg)`;
 
-        function transition() {
-            if (reducedMotionQuery.matches) {
-                plasma.style.filter = "blur(54px)";
-                return;
+            function transition() {
+                if (reducedMotionQuery.matches) {
+                    plasma.style.filter = "blur(54px)";
+                    return;
+                }
+
+                let nextHue = rainbowHues[Math.floor(Math.random() * rainbowHues.length)];
+                while (nextHue === currentHue) {
+                    nextHue = rainbowHues[Math.floor(Math.random() * rainbowHues.length)];
+                }
+
+                const duration = 6000 + Math.random() * 5000;
+                const animation = plasma.animate(
+                    [
+                        { filter: `blur(54px) hue-rotate(${currentHue}deg)` },
+                        { filter: `blur(54px) hue-rotate(${nextHue}deg)` }
+                    ],
+                    { duration, easing: "ease-in-out", fill: "forwards" }
+                );
+
+                animation.finished.then(() => {
+                    currentHue = nextHue;
+                    plasma.style.filter = `blur(54px) hue-rotate(${currentHue}deg)`;
+                    animation.cancel();
+                    transition();
+                }).catch(() => { });
             }
 
-            let nextHue = rainbowHues[Math.floor(Math.random() * rainbowHues.length)];
-            while (nextHue === currentHue) {
-                nextHue = rainbowHues[Math.floor(Math.random() * rainbowHues.length)];
+            transition();
+        }
+
+        animatePlasmaColour(document.querySelector(".plasma-a"), 0);
+        animatePlasmaColour(document.querySelector(".plasma-b"), 42);
+
+        const calendarBtn = document.getElementById("showCalendarQrBtn");
+        const calendarModal = document.getElementById("calendarQrModal");
+
+        calendarBtn.addEventListener("click", () => {
+            calendarModal.classList.add("active");
+        });
+
+        calendarModal.addEventListener("click", (e) => {
+            if (e.target === calendarModal) {
+                calendarModal.classList.remove("active");
             }
-
-            const duration = 6000 + Math.random() * 5000;
-            const animation = plasma.animate(
-                [
-                    { filter: `blur(54px) hue-rotate(${currentHue}deg)` },
-                    { filter: `blur(54px) hue-rotate(${nextHue}deg)` }
-                ],
-                { duration, easing: "ease-in-out", fill: "forwards" }
-            );
-
-            animation.finished.then(() => {
-                currentHue = nextHue;
-                plasma.style.filter = `blur(54px) hue-rotate(${currentHue}deg)`;
-                animation.cancel();
-                transition();
-            }).catch(() => {});
-        }
-
-        transition();
-    }
-
-    animatePlasmaColour(document.querySelector(".plasma-a"), 0);
-    animatePlasmaColour(document.querySelector(".plasma-b"), 42);
-
-    const calendarBtn = document.getElementById("showCalendarQrBtn");
-    const calendarModal = document.getElementById("calendarQrModal");
-
-    calendarBtn.addEventListener("click", () => {
-        calendarModal.classList.add("active");
-    });
-
-    calendarModal.addEventListener("click", (e) => {
-        if (e.target === calendarModal) {
-            calendarModal.classList.remove("active");
-        }
-    });
-</script>
+        });
+    </script>
 </body>
+
 </html>

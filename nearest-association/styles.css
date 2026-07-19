@@ -544,6 +544,28 @@ main {
   padding-bottom: 12px;
   border-bottom: 1px solid var(--line);
 }
+.zoom-association-button {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 10px;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 750;
+  cursor: pointer;
+}
+.zoom-association-button:hover {
+  background: var(--accent-dark);
+}
+.zoom-association-button:focus-visible {
+  outline: 3px solid rgba(40, 120, 74, .28);
+  outline-offset: 3px;
+}
+.zoom-association-button:active {
+  transform: translateY(1px);
+}
 .state-association-card:last-child {
   border-bottom: 0;
 }

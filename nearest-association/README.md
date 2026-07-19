@@ -74,3 +74,8 @@ Clipboard text now prefixes each contact field on its own line:
 - Added an Associations control panel below the basemap panel.
 - Added a modal with buttons for all eight Australian states and territories represented in the data.
 - Selecting a state or territory displays all matching Stoma Associations and zooms the map to them.
+
+## v2.2
+
+- Added a “Zoom to association” button to every state or territory search result.
+- Selecting the action zooms to street level and opens the association’s map popup.

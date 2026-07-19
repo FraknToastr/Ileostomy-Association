@@ -98,6 +98,7 @@
 
   const stateDialog = document.getElementById("state-associations-dialog");
   const stateButtons = [...document.querySelectorAll("#state-button-grid [data-state]")];
+  const resultsPanel = document.getElementById("results");
 
   document.getElementById("open-state-associations")
     .addEventListener("click", () => stateDialog.showModal());
@@ -111,6 +112,14 @@
       showAssociationsByState(button.dataset.state);
       stateDialog.close();
     });
+  });
+
+  resultsPanel.addEventListener("click", event => {
+    const zoomButton = event.target.closest("[data-zoom-association]");
+    if (!zoomButton) return;
+
+    const assoc = associations.get(Number(zoomButton.dataset.zoomAssociation));
+    if (assoc) zoomToAssociation(assoc);
   });
 
   function showAssociationsByState(stateName) {
@@ -190,12 +199,35 @@
             ${assoc.USER_Address ? `<p>${escapeHtml(assoc.USER_Address)}</p>` : ""}
             ${assoc.USER_Phone ? `<p><strong>Phone:</strong> ${escapeHtml(assoc.USER_Phone)}</p>` : ""}
             ${assoc.USER_Email ? `<p><strong>Email:</strong> ${escapeHtml(assoc.USER_Email)}</p>` : ""}
+            <button
+              class="zoom-association-button"
+              type="button"
+              data-zoom-association="${escapeAttribute(assoc.Index)}"
+              aria-label="Zoom to ${escapeAttribute(assoc.USER_Association_Name)}"
+            >Zoom to association</button>
           </article>
         `).join("")}
       </div>`;
 
     results.hidden = false;
     copyRow.hidden = true;
+  }
+
+  function zoomToAssociation(assoc) {
+    const coordinates = [Number(assoc.X), Number(assoc.Y)];
+    if (!coordinates.every(Number.isFinite)) return;
+
+    map.easeTo({
+      center: coordinates,
+      zoom: 15,
+      duration: 900
+    });
+
+    new maplibregl.Popup({ maxWidth: "350px" })
+      .setLngLat(coordinates)
+      .setHTML(`<p class="popup-title">${escapeHtml(assoc.USER_Association_Name)}</p>
+        <p class="popup-meta">${escapeHtml(assoc.USER_Address)}</p>`)
+      .addTo(map);
   }
 
   const about = document.getElementById("about-dialog");

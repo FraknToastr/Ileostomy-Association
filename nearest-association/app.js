@@ -115,6 +115,13 @@
   });
 
   resultsPanel.addEventListener("click", event => {
+    const copyContactButton = event.target.closest("[data-copy-association]");
+    if (copyContactButton) {
+      const assoc = associations.get(Number(copyContactButton.dataset.copyAssociation));
+      if (assoc) copyAssociationContact(assoc, copyContactButton);
+      return;
+    }
+
     const zoomButton = event.target.closest("[data-zoom-association]");
     if (!zoomButton) return;
 
@@ -199,12 +206,20 @@
             ${assoc.USER_Address ? `<p>${escapeHtml(assoc.USER_Address)}</p>` : ""}
             ${assoc.USER_Phone ? `<p><strong>Phone:</strong> ${escapeHtml(assoc.USER_Phone)}</p>` : ""}
             ${assoc.USER_Email ? `<p><strong>Email:</strong> ${escapeHtml(assoc.USER_Email)}</p>` : ""}
-            <button
-              class="zoom-association-button"
-              type="button"
-              data-zoom-association="${escapeAttribute(assoc.Index)}"
-              aria-label="Zoom to ${escapeAttribute(assoc.USER_Association_Name)}"
-            >Zoom to association</button>
+            <div class="association-action-row">
+              <button
+                class="association-action-button copy-association-button"
+                type="button"
+                data-copy-association="${escapeAttribute(assoc.Index)}"
+                aria-label="Copy contact details for ${escapeAttribute(assoc.USER_Association_Name)}"
+              >Copy contact details</button>
+              <button
+                class="association-action-button zoom-association-button"
+                type="button"
+                data-zoom-association="${escapeAttribute(assoc.Index)}"
+                aria-label="Zoom to ${escapeAttribute(assoc.USER_Association_Name)}"
+              >Zoom to association</button>
+            </div>
           </article>
         `).join("")}
       </div>`;
@@ -467,6 +482,60 @@
     }
   }
 
+  function associationContactText(assoc) {
+    const fields = [
+      ["Name", assoc.USER_Association_Name],
+      ["Address", assoc.USER_Address],
+      ["Phone", assoc.USER_Phone],
+      ["Email", assoc.USER_Email],
+      ["Website", assoc.USER_Website]
+    ];
+
+    return fields
+      .map(([label, value]) => [label, String(value || "").trim()])
+      .filter(([, value]) => value)
+      .map(([label, value]) => `${label}: ${value}`)
+      .join("\n");
+  }
+
+  async function writeTextToClipboard(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (error) {
+      const fallback = document.createElement("textarea");
+      fallback.value = text;
+      fallback.setAttribute("readonly", "");
+      fallback.style.position = "fixed";
+      fallback.style.opacity = "0";
+      document.body.appendChild(fallback);
+      fallback.select();
+      const succeeded = document.execCommand("copy");
+      fallback.remove();
+      if (!succeeded) throw error;
+    }
+  }
+
+  async function copyAssociationContact(assoc, button) {
+    window.clearTimeout(button._resetTimer);
+    button.dataset.defaultAriaLabel ||= button.getAttribute("aria-label");
+    button.disabled = true;
+
+    try {
+      await writeTextToClipboard(associationContactText(assoc));
+      button.textContent = "Copied";
+      button.setAttribute("aria-label", `${assoc.USER_Association_Name} contact details copied`);
+    } catch {
+      button.textContent = "Copy failed";
+      button.setAttribute("aria-label", `Unable to copy contact details for ${assoc.USER_Association_Name}`);
+    } finally {
+      button.disabled = false;
+      button._resetTimer = window.setTimeout(() => {
+        button.textContent = "Copy contact details";
+        button.setAttribute("aria-label", button.dataset.defaultAriaLabel);
+      }, 5000);
+    }
+  }
+
   function createStyle(type) {
     const source = type === "aerial"
       ? { type: "raster", tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"], tileSize: 256, attribution: "Tiles © Esri" }
@@ -507,35 +576,7 @@
   copyButton.addEventListener("click", async () => {
     if (!activeAssociation) return;
 
-    const fields = [
-      ["Name", activeAssociation.USER_Association_Name],
-      ["Address", activeAssociation.USER_Address],
-      ["Phone", activeAssociation.USER_Phone],
-      ["Email", activeAssociation.USER_Email],
-      ["Website", activeAssociation.USER_Website]
-    ];
-
-    const lines = fields
-      .map(([label, value]) => [label, String(value || "").trim()])
-      .filter(([, value]) => value)
-      .map(([label, value]) => `${label}: ${value}`);
-
-    const copyText = lines.join("\n");
-
-    try {
-      await navigator.clipboard.writeText(copyText);
-    } catch (error) {
-      const fallback = document.createElement("textarea");
-      fallback.value = copyText;
-      fallback.setAttribute("readonly", "");
-      fallback.style.position = "fixed";
-      fallback.style.opacity = "0";
-      document.body.appendChild(fallback);
-      fallback.select();
-      const succeeded = document.execCommand("copy");
-      fallback.remove();
-      if (!succeeded) throw error;
-    }
+    await writeTextToClipboard(associationContactText(activeAssociation));
 
     copyButton.textContent = "Copied";
     copyLabel.textContent =

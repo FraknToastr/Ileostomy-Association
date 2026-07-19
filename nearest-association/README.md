@@ -79,3 +79,8 @@ Clipboard text now prefixes each contact field on its own line:
 
 - Added a “Zoom to association” button to every state or territory search result.
 - Selecting the action zooms to street level and opens the association’s map popup.
+
+## v2.3
+
+- Added a per-result button that copies the association name, address, phone, email, and website.
+- Copy and zoom actions share one equal-width, two-column row.

@@ -1,0 +1,13 @@
+{
+  "name": "stocktake-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "extract": "python3 tools/extract_stocktake.py",
+    "serve": "python3 -m http.server 8026",
+    "test": "playwright test tests/stocktake-smoke.spec.js --reporter=line"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.1"
+  }
+}

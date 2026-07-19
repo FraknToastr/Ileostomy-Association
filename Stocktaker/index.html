@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stocktake Variance Dashboard</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8f6;
+      --panel: #ffffff;
+      --panel-2: #eef2ee;
+      --ink: #15211c;
+      --muted: #5f6f67;
+      --line: #d8dfd9;
+      --line-strong: #b9c5bd;
+      --primary: #245946;
+      --primary-2: #dce9e2;
+      --blue: #2f5f98;
+      --blue-soft: #dce8f5;
+      --green: #1e7a4f;
+      --green-soft: #dff0e6;
+      --red: #ad3d34;
+      --red-soft: #f6dedb;
+      --amber: #9b6d16;
+      --amber-soft: #f3ead4;
+      --shadow: 0 18px 55px rgba(26, 38, 33, 0.09);
+      --radius: 8px;
+      --radius-sm: 5px;
+      --ease: cubic-bezier(.2, .8, .2, 1);
+    }
+
+    body.theme-dark {
+      color-scheme: dark;
+      --bg: #111816;
+      --panel: #17211e;
+      --panel-2: #202c28;
+      --ink: #eef4ef;
+      --muted: #a7b7ad;
+      --line: #31413b;
+      --line-strong: #50645b;
+      --primary: #81c7a6;
+      --primary-2: #24362f;
+      --blue: #99bbe8;
+      --blue-soft: #203044;
+      --green: #86d6aa;
+      --green-soft: #20392c;
+      --red: #ee958d;
+      --red-soft: #442520;
+      --amber: #e4c275;
+      --amber-soft: #3c321e;
+      --shadow: 0 18px 55px rgba(0, 0, 0, 0.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Aptos, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+      text-wrap: pretty;
+    }
+
+    button, input, select {
+      font: inherit;
+      color: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: var(--radius-sm);
+      min-height: 36px;
+      cursor: pointer;
+      transition: transform 140ms var(--ease), border-color 140ms var(--ease), background 140ms var(--ease);
+    }
+
+    button:hover { border-color: var(--line-strong); }
+    button:active { transform: translateY(1px); }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid color-mix(in oklch, var(--primary) 28%, transparent);
+      outline-offset: 2px;
+    }
+
+    .app {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      padding: 18px 26px;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in oklch, var(--bg) 92%, transparent);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 160px;
+      height: 35px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .brand-logo.dark-logo,
+    body.theme-dark .brand-logo.light-logo {
+      display: none;
+    }
+
+    body.theme-dark .brand-logo.dark-logo {
+      display: block;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.15;
+      font-weight: 720;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .filter-status-pill {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 6px 5px 12px;
+      border: 1px solid color-mix(in oklch, var(--amber) 48%, var(--line));
+      border-radius: 999px;
+      background: color-mix(in oklch, var(--amber-soft) 78%, var(--panel));
+      color: var(--amber);
+      box-shadow: 0 0 0 0 color-mix(in oklch, var(--amber) 30%, transparent);
+      animation: filterPulse 1500ms var(--ease) infinite;
+    }
+
+    .filter-status-pill[hidden] {
+      display: none;
+    }
+
+    .filter-status-pill strong {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .filter-status-pill span {
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 650;
+      color: color-mix(in oklch, var(--amber) 72%, var(--ink));
+    }
+
+    .filter-status-pill button {
+      min-height: 28px;
+      padding: 0 10px;
+      border-color: color-mix(in oklch, var(--amber) 36%, var(--line));
+      background: var(--panel);
+      color: var(--amber);
+      font-size: 12px;
+      font-weight: 760;
+      border-radius: 999px;
+    }
+
+    @keyframes filterPulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 color-mix(in oklch, var(--amber) 34%, transparent);
+      }
+      50% {
+        box-shadow: 0 0 0 8px color-mix(in oklch, var(--amber) 0%, transparent);
+      }
+    }
+
+    .icon-btn {
+      width: 38px;
+      padding: 0;
+      display: inline-grid;
+      place-items: center;
+      font-weight: 750;
+    }
+
+    .icon-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .theme-icon .sun-mark {
+      opacity: 1;
+    }
+
+    .theme-icon .moon-mark {
+      opacity: .55;
+    }
+
+    body.theme-dark .theme-icon .sun-mark {
+      opacity: .5;
+    }
+
+    body.theme-dark .theme-icon .moon-mark {
+      opacity: 1;
+    }
+
+    .text-btn {
+      padding: 0 12px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .primary-btn {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    body.theme-dark .primary-btn {
+      color: #102019;
+    }
+
+    .desktop-shell {
+      padding: 24px 26px 34px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .mobile-shell { display: none; }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(320px, .6fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .summary-panel, .panel, .mobile-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .summary-panel {
+      padding: 20px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .summary-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 750;
+    }
+
+    .summary-head h2 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .delta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 750;
+      white-space: nowrap;
+      border: 1px solid var(--line);
+    }
+
+    .delta-badge.up {
+      color: var(--green);
+      background: var(--green-soft);
+      border-color: color-mix(in oklch, var(--green) 28%, var(--line));
+    }
+
+    .delta-badge.down {
+      color: var(--red);
+      background: var(--red-soft);
+      border-color: color-mix(in oklch, var(--red) 28%, var(--line));
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .kpi {
+      min-height: 108px;
+      padding: 14px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      display: grid;
+      align-content: space-between;
+      gap: 10px;
+    }
+
+    .kpi label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .kpi strong {
+      display: block;
+      font-size: 26px;
+      line-height: 1;
+      font-weight: 760;
+      overflow-wrap: anywhere;
+    }
+
+    .kpi small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .segment-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .segment-card {
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .segment-card h3 {
+      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      font-size: 18px;
+    }
+
+    .segment-card h3 span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .segment-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .metric {
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      font-weight: 720;
+      margin-bottom: 6px;
+    }
+
+    .metric b {
+      font-size: 18px;
+      overflow-wrap: anywhere;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) repeat(5, auto);
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input, .toolbar select, .mobile-search input, .mobile-count input {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: var(--radius-sm);
+      padding: 0 12px;
+    }
+
+    .search-box input {
+      padding-left: 38px;
+    }
+
+    .search-box::before {
+      content: "";
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--muted);
+      border-radius: 50%;
+      transform: translateY(-58%);
+    }
+
+    .search-box::after {
+      content: "";
+      position: absolute;
+      left: 25px;
+      top: 25px;
+      width: 8px;
+      height: 2px;
+      background: var(--muted);
+      transform: rotate(45deg);
+      transform-origin: left center;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+      gap: 18px;
+    }
+
+    .panel {
+      min-width: 0;
+      padding: 16px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .panel h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .panel-head span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .bar-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(120px, .9fr) minmax(180px, 1.4fr) 96px;
+      gap: 12px;
+      align-items: center;
+      min-height: 34px;
+    }
+
+    .bar-name {
+      min-width: 0;
+      font-weight: 650;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bar-canvas {
+      position: relative;
+      height: 20px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-canvas i {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      display: block;
+      background: var(--green);
+    }
+
+    .bar-canvas i.neg {
+      background: var(--red);
+    }
+
+    .bar-value {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .risk-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .risk-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: var(--radius-sm);
+    }
+
+    .risk-row b {
+      display: block;
+      font-size: 13px;
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+
+    .risk-row span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .money {
+      font-variant-numeric: tabular-nums;
+      font-weight: 780;
+    }
+
+    .money.pos { color: var(--green); }
+    .money.neg { color: var(--red); }
+    .money.neu { color: var(--muted); }
+
+    .table-panel {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .table-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: 620px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1080px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+      font-size: 13px;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--panel-2);
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      font-weight: 750;
+    }
+
+    th .sort-button {
+      width: 100%;
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 6px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      border-radius: 0;
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      font-weight: inherit;
+    }
+
+    th.num .sort-button {
+      justify-content: flex-end;
+    }
+
+    .sort-icon {
+      width: 10px;
+      color: var(--line-strong);
+      font-size: 10px;
+      line-height: 1;
+      text-align: center;
+    }
+
+    th[aria-sort="ascending"] .sort-icon,
+    th[aria-sort="descending"] .sort-icon {
+      color: var(--primary);
+    }
+
+    #stockRows tr {
+      cursor: pointer;
+      transition: background 140ms var(--ease), box-shadow 140ms var(--ease);
+    }
+
+    #stockRows tr td {
+      transition: background 140ms var(--ease), color 140ms var(--ease), box-shadow 140ms var(--ease);
+    }
+
+    #stockRows tr:hover td {
+      background: color-mix(in oklch, var(--primary-2) 62%, var(--panel));
+    }
+
+    #stockRows tr.is-selected td {
+      background: color-mix(in oklch, var(--amber-soft) 78%, var(--panel));
+      box-shadow: inset 0 1px 0 color-mix(in oklch, var(--amber) 24%, transparent), inset 0 -1px 0 color-mix(in oklch, var(--amber) 24%, transparent);
+    }
+
+    #stockRows tr.is-selected td:first-child {
+      box-shadow: inset 4px 0 0 var(--primary), inset 0 1px 0 color-mix(in oklch, var(--amber) 24%, transparent), inset 0 -1px 0 color-mix(in oklch, var(--amber) 24%, transparent);
+      font-weight: 780;
+      color: var(--ink);
+    }
+
+    #stockRows tr.is-selected:hover td {
+      background: color-mix(in oklch, var(--amber-soft) 62%, var(--primary-2));
+    }
+
+    td.num, th.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .desc-cell {
+      max-width: 340px;
+      font-weight: 660;
+    }
+
+    .code {
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      justify-content: center;
+      min-width: 70px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 750;
+      border: 1px solid var(--line);
+    }
+
+    .status-chip.over {
+      color: var(--green);
+      background: var(--green-soft);
+      border-color: color-mix(in oklch, var(--green) 24%, var(--line));
+    }
+
+    .status-chip.under {
+      color: var(--red);
+      background: var(--red-soft);
+      border-color: color-mix(in oklch, var(--red) 24%, var(--line));
+    }
+
+    .status-chip.match {
+      color: var(--muted);
+      background: var(--panel-2);
+    }
+
+    .audit-cell {
+      position: relative;
+    }
+
+    .audit-chip {
+      cursor: help;
+    }
+
+    .audit-report {
+      position: absolute;
+      right: 10px;
+      top: calc(100% - 2px);
+      z-index: 12;
+      width: min(320px, 72vw);
+      padding: 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      color: var(--ink);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-4px);
+      transition: opacity 140ms var(--ease), transform 140ms var(--ease);
+      text-align: left;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .audit-cell:hover .audit-report,
+    .audit-cell:focus-within .audit-report {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .audit-report h4 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .audit-report dl {
+      display: grid;
+      grid-template-columns: minmax(112px, auto) 1fr;
+      gap: 6px 10px;
+      margin: 0;
+      font-size: 12px;
+    }
+
+    .audit-report dt {
+      color: var(--muted);
+      font-weight: 720;
+    }
+
+    .audit-report dd {
+      margin: 0;
+      font-variant-numeric: tabular-nums;
+      font-weight: 650;
+    }
+
+    .empty {
+      padding: 30px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius-sm);
+      background: var(--panel-2);
+    }
+
+    .mobile-shell {
+      padding-bottom: 94px;
+    }
+
+    .mobile-header {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      padding: 12px 14px;
+      background: color-mix(in oklch, var(--bg) 94%, transparent);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .mobile-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .mobile-title-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .mobile-brand-logo {
+      width: 92px;
+      height: auto;
+      flex: 0 0 auto;
+    }
+
+    .mobile-title h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.15;
+    }
+
+    .mobile-title span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .mobile-search {
+      display: block;
+    }
+
+    .mobile-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 10px 14px 0;
+    }
+
+    .mobile-tabs button {
+      min-height: 42px;
+      font-size: 12px;
+      font-weight: 760;
+      padding: 0 6px;
+    }
+
+    .mobile-tabs button.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    body.theme-dark .mobile-tabs button.active {
+      color: #102019;
+    }
+
+    .mobile-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 12px 14px;
+    }
+
+    .mobile-stat {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--panel);
+    }
+
+    .mobile-stat span {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 750;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 5px;
+    }
+
+    .mobile-stat b {
+      display: block;
+      font-size: 16px;
+      overflow-wrap: anywhere;
+    }
+
+    .mobile-list {
+      display: grid;
+      gap: 10px;
+      padding: 0 14px 14px;
+    }
+
+    .stock-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .stock-card.checked {
+      border-color: color-mix(in oklch, var(--green) 45%, var(--line));
+      background: color-mix(in oklch, var(--green-soft) 45%, var(--panel));
+    }
+
+    .stock-card-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+    }
+
+    .stock-card h3 {
+      margin: 0 0 5px;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    .stock-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .stock-card .status-chip {
+      align-self: start;
+      min-width: 58px;
+    }
+
+    .mobile-count {
+      display: grid;
+      grid-template-columns: 44px 1fr 44px 96px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .mobile-count button {
+      min-height: 44px;
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 780;
+    }
+
+    .mobile-count input {
+      min-height: 44px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      font-weight: 760;
+      padding: 0 8px;
+    }
+
+    .check-btn {
+      min-height: 44px;
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      font-weight: 760;
+    }
+
+    body.theme-dark .check-btn {
+      color: #102019;
+    }
+
+    .card-values {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .card-values div {
+      padding: 8px;
+      border-radius: var(--radius-sm);
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+    }
+
+    .card-values span {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .mobile-bottom {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 18;
+      width: min(520px, 100vw);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 10px 14px 14px;
+      background: color-mix(in oklch, var(--bg) 94%, transparent);
+      border-top: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+
+    .mobile-bottom button {
+      min-height: 46px;
+      font-weight: 760;
+    }
+
+    @media (max-width: 1160px) {
+      .hero-grid, .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .toolbar .search-box {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .topbar, .desktop-shell {
+        display: none;
+      }
+
+      .mobile-shell {
+        display: block;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-logo light-logo" src="assets/uos-logo-forward.svg" alt="U-OS">
+        <img class="brand-logo dark-logo" src="assets/uos-logo-forward-dark.svg" alt="U-OS">
+        <div>
+          <h1>Stocktake Variance Dashboard</h1>
+          <p id="sourceLine"></p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div class="filter-status-pill" id="filterStatusPill" role="status" hidden>
+          <strong>Filtered data</strong>
+          <span id="filterStatusText"></span>
+          <button type="button" id="clearFilterPill">Clear</button>
+        </div>
+        <button class="icon-btn theme-icon" id="themeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle class="sun-mark" cx="12" cy="12" r="4"></circle>
+            <path class="sun-mark" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+            <path class="moon-mark" d="M20 15.5A7.5 7.5 0 0 1 8.5 4a6 6 0 1 0 11.5 11.5Z"></path>
+          </svg>
+        </button>
+        <button class="text-btn" id="resetCounts">Reset counts</button>
+        <button class="text-btn primary-btn" id="exportCsv">Export CSV</button>
+      </div>
+    </header>
+
+    <main class="desktop-shell" id="desktopShell">
+      <section class="hero-grid">
+        <div class="summary-panel">
+          <div class="summary-head">
+            <div>
+              <p class="eyebrow">SAMS versus shelf count</p>
+              <h2 id="headlineValue">$0.00</h2>
+            </div>
+            <div class="delta-badge" id="headlineBadge">Variance</div>
+          </div>
+          <div class="kpi-grid" id="kpiGrid"></div>
+        </div>
+        <aside class="segment-stack" id="segmentStack"></aside>
+      </section>
+
+      <section class="toolbar" aria-label="Dashboard filters">
+        <div class="search-box">
+          <input id="searchInput" type="search" placeholder="Search code, item, company, or section">
+        </div>
+        <select id="segmentFilter" aria-label="Segment filter"></select>
+        <select id="companyFilter" aria-label="Company code filter"></select>
+        <select id="sectionFilter" aria-label="Section filter"></select>
+        <select id="varianceFilter" aria-label="Variance filter">
+          <option value="all">All variances</option>
+          <option value="over">Shelf over SAMS</option>
+          <option value="under">Shelf under SAMS</option>
+          <option value="match">Matched</option>
+        </select>
+        <select id="sortFilter" aria-label="Sort order">
+          <option value="abs">Largest value difference</option>
+          <option value="valueDesc">Highest shelf value</option>
+          <option value="qtyAbs">Largest count difference</option>
+          <option value="code">Code</option>
+        </select>
+      </section>
+
+      <section class="grid-2">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Value Difference By Company / Section</h3>
+            <span>Pharma block rows are grouped by company code</span>
+          </div>
+          <div class="bar-list" id="sectionChart"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Largest Product Differences</h3>
+            <span>Top absolute dollar movement</span>
+          </div>
+          <div class="risk-list" id="riskList"></div>
+        </div>
+      </section>
+
+      <section class="grid-2">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Company Difference</h3>
+            <span>Top supplier/company codes</span>
+          </div>
+          <div class="bar-list" id="companyChart"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Count Quality</h3>
+            <span>Matched, over, and under lines</span>
+          </div>
+          <div class="bar-list" id="qualityChart"></div>
+        </div>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="table-head">
+          <div>
+            <h3>Stock Lines</h3>
+            <span id="tableCount" class="eyebrow"></span>
+          </div>
+          <button class="text-btn" id="clearFilters">Clear filters</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="num" data-sort-key="row" aria-sort="none"><button class="sort-button" type="button">Row <span class="sort-icon">-</span></button></th>
+                <th data-sort-key="code" aria-sort="none"><button class="sort-button" type="button">Code <span class="sort-icon">-</span></button></th>
+                <th data-sort-key="description" aria-sort="none"><button class="sort-button" type="button">Description <span class="sort-icon">-</span></button></th>
+                <th data-sort-key="company" aria-sort="none"><button class="sort-button" type="button">Co. <span class="sort-icon">-</span></button></th>
+                <th data-sort-key="segment" aria-sort="none"><button class="sort-button" type="button">Segment <span class="sort-icon">-</span></button></th>
+                <th data-sort-key="subsection" aria-sort="none"><button class="sort-button" type="button">Section <span class="sort-icon">-</span></button></th>
+                <th class="num" data-sort-key="price" aria-sort="none"><button class="sort-button" type="button">Price <span class="sort-icon">-</span></button></th>
+                <th class="num" data-sort-key="sams" aria-sort="none"><button class="sort-button" type="button">SAMS <span class="sort-icon">-</span></button></th>
+                <th class="num" data-sort-key="actual" aria-sort="none"><button class="sort-button" type="button">Actual <span class="sort-icon">-</span></button></th>
+                <th class="num" data-sort-key="quantityDiff" aria-sort="none"><button class="sort-button" type="button">Qty Diff <span class="sort-icon">-</span></button></th>
+                <th class="num" data-sort-key="valueDiff" aria-sort="none"><button class="sort-button" type="button">Value Diff <span class="sort-icon">-</span></button></th>
+                <th class="num" data-sort-key="workbookValueDiff" aria-sort="none"><button class="sort-button" type="button">Workbook Diff <span class="sort-icon">-</span></button></th>
+                <th data-sort-key="status" aria-sort="none"><button class="sort-button" type="button">Status <span class="sort-icon">-</span></button></th>
+                <th data-sort-key="audit" aria-sort="none"><button class="sort-button" type="button">Audit <span class="sort-icon">-</span></button></th>
+              </tr>
+            </thead>
+            <tbody id="stockRows"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <main class="mobile-shell" id="mobileShell">
+      <header class="mobile-header">
+        <div class="mobile-title">
+          <div class="mobile-title-main">
+            <img class="brand-logo mobile-brand-logo light-logo" src="assets/uos-logo-forward.svg" alt="U-OS">
+            <img class="brand-logo mobile-brand-logo dark-logo" src="assets/uos-logo-forward-dark.svg" alt="U-OS">
+            <div>
+              <h2>Stocktake</h2>
+              <span id="mobileSource"></span>
+            </div>
+          </div>
+          <button class="icon-btn theme-icon" id="mobileTheme" title="Toggle dark mode" aria-label="Toggle dark mode">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle class="sun-mark" cx="12" cy="12" r="4"></circle>
+              <path class="sun-mark" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+              <path class="moon-mark" d="M20 15.5A7.5 7.5 0 0 1 8.5 4a6 6 0 1 0 11.5 11.5Z"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="mobile-search">
+          <input id="mobileSearch" type="search" placeholder="Search stock">
+        </div>
+      </header>
+      <div class="mobile-tabs" id="mobileTabs">
+        <button data-mobile-filter="all" class="active">All</button>
+        <button data-mobile-filter="todo">To check</button>
+        <button data-mobile-filter="variance">Variance</button>
+        <button data-mobile-filter="checked">Checked</button>
+      </div>
+      <section class="mobile-stats" id="mobileStats"></section>
+      <section class="mobile-list" id="mobileList"></section>
+      <nav class="mobile-bottom">
+        <button id="mobileExport">Export CSV</button>
+        <button id="mobileReset">Reset</button>
+      </nav>
+    </main>
+  </div>
+
+  <script src="stocktake-data.js"></script>
+  <script>
+    const sourceData = window.STOCKTAKE_DATA;
+    const baseItems = sourceData.items;
+    const storageKey = "stocktake-2026-state-v1";
+    const formatter = new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" });
+    const integerFormatter = new Intl.NumberFormat("en-AU", { maximumFractionDigits: 0 });
+    const companyGroups = [
+      { value: "DA|DAN", label: "Dansac (DA/DAN)", codes: ["DA", "DAN"] },
+      { value: "HO|HOL", label: "Hollister (HO/HOL)", codes: ["HO", "HOL"] }
+    ];
+    const chartCompanyLabels = {
+      BB: "Braun",
+      CC: "Convatec",
+      COL: "Coloplast",
+      DA: "Dansac",
+      DAN: "Dansac",
+      HO: "Hollister",
+      HOL: "Hollister",
+      OG: "Omnigon",
+      SA: "Salts"
+    };
+    const state = {
+      query: "",
+      segment: "all",
+      company: "all",
+      section: "all",
+      variance: "all",
+      sort: "abs",
+      tableSort: { key: "", direction: "asc" },
+      selectedStockId: "",
+      mobileFilter: "all",
+      saved: readSaved()
+    };
+
+    function readSaved() {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        return raw ? JSON.parse(raw) : { counts: {}, checked: {}, theme: "" };
+      } catch {
+        return { counts: {}, checked: {}, theme: "" };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(storageKey, JSON.stringify(state.saved));
+    }
+
+    function money(value) {
+      return formatter.format(value || 0);
+    }
+
+    function signedMoney(value) {
+      const prefix = value > 0 ? "+" : "";
+      return prefix + money(value || 0);
+    }
+
+    function signedInt(value) {
+      const prefix = value > 0 ? "+" : "";
+      return prefix + integerFormatter.format(value || 0);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function classForValue(value) {
+      if (value > 0) return "pos";
+      if (value < 0) return "neg";
+      return "neu";
+    }
+
+    function mergedItems() {
+      return baseItems.map(item => {
+        const actual = Number.isFinite(state.saved.counts[item.id]) ? state.saved.counts[item.id] : item.actual;
+        const quantityDiff = actual - item.sams;
+        const samsValue = item.price * item.sams;
+        const actualValue = item.price * actual;
+        return {
+          ...item,
+          actual,
+          quantityDiff,
+          samsValue,
+          actualValue,
+          valueDiff: actualValue - samsValue,
+          formulaIssue: actual === item.actual && item.formulaIssue,
+          checked: Boolean(state.saved.checked[item.id])
+        };
+      });
+    }
+
+    function totals(items) {
+      const initial = {
+        count: items.length,
+        samsUnits: 0,
+        actualUnits: 0,
+        samsValue: 0,
+        actualValue: 0,
+        valueDiff: 0,
+        overValue: 0,
+        underValue: 0,
+        overLines: 0,
+        underLines: 0,
+        matchLines: 0,
+        checked: 0,
+        workbookValueDiff: 0,
+        formulaIssues: 0
+      };
+      return items.reduce((acc, item) => {
+        acc.samsUnits += item.sams;
+        acc.actualUnits += item.actual;
+        acc.samsValue += item.samsValue;
+        acc.actualValue += item.actualValue;
+        acc.valueDiff += item.valueDiff;
+        acc.workbookValueDiff += Number.isFinite(item.workbookValueDiff) ? item.workbookValueDiff : item.valueDiff;
+        if (item.formulaIssue) acc.formulaIssues += 1;
+        if (item.valueDiff > 0) {
+          acc.overValue += item.valueDiff;
+          acc.overLines += 1;
+        } else if (item.valueDiff < 0) {
+          acc.underValue += Math.abs(item.valueDiff);
+          acc.underLines += 1;
+        } else {
+          acc.matchLines += 1;
+        }
+        if (item.checked) acc.checked += 1;
+        return acc;
+      }, initial);
+    }
+
+    function groupBy(items, key) {
+      const groups = new Map();
+      items.forEach(item => {
+        const name = item[key] || "Unassigned";
+        if (!groups.has(name)) groups.set(name, []);
+        groups.get(name).push(item);
+      });
+      return Array.from(groups, ([name, rows]) => ({ name, ...totals(rows) }));
+    }
+
+    function groupByName(items, getName) {
+      const groups = new Map();
+      items.forEach(item => {
+        const name = getName(item) || "Unassigned";
+        if (!groups.has(name)) groups.set(name, []);
+        groups.get(name).push(item);
+      });
+      return Array.from(groups, ([name, rows]) => ({ name, ...totals(rows) }));
+    }
+
+    function normalizedCompanyCode(item) {
+      return String(item.company || "").trim().toUpperCase();
+    }
+
+    function chartCompanyName(item) {
+      const code = normalizedCompanyCode(item);
+      return chartCompanyLabels[code] || code || "Unassigned";
+    }
+
+    function sectionChartName(item) {
+      if (String(item.subsection || "").startsWith("Pharma block")) {
+        return chartCompanyName(item);
+      }
+      return item.subsection || item.section;
+    }
+
+    function companyCodesForFilter(value) {
+      if (value === "all") return null;
+      return value.split("|").map(code => code.trim().toUpperCase()).filter(Boolean);
+    }
+
+    function companyFilterOptions() {
+      const allCodes = Array.from(new Set(baseItems.map(normalizedCompanyCode).filter(Boolean))).sort((a, b) =>
+        a.localeCompare(b, undefined, { numeric: true })
+      );
+      const groupedCodes = new Set(companyGroups.flatMap(group => group.codes));
+      const groupedOptions = companyGroups
+        .filter(group => group.codes.some(code => allCodes.includes(code)))
+        .map(group => ({ value: group.value, label: group.label }));
+      const rawOptions = allCodes
+        .filter(code => !groupedCodes.has(code))
+        .map(code => ({ value: code, label: code }));
+      return [{ value: "all", label: "All company codes" }, ...groupedOptions, ...rawOptions];
+    }
+
+    function optionLabel(selectId, value) {
+      const option = Array.from(document.getElementById(selectId).options).find(item => item.value === value);
+      return option ? option.textContent : value;
+    }
+
+    function activeFilterLabels() {
+      const labels = [];
+      const query = state.query.trim();
+      if (query) labels.push(`Search "${query}"`);
+      if (state.segment !== "all") labels.push(optionLabel("segmentFilter", state.segment));
+      if (state.company !== "all") labels.push(optionLabel("companyFilter", state.company));
+      if (state.section !== "all") labels.push(optionLabel("sectionFilter", state.section));
+      if (state.variance !== "all") labels.push(optionLabel("varianceFilter", state.variance));
+      return labels;
+    }
+
+    function syncFilterControls() {
+      document.getElementById("searchInput").value = state.query;
+      document.getElementById("mobileSearch").value = state.query;
+      document.getElementById("segmentFilter").value = state.segment;
+      document.getElementById("companyFilter").value = state.company;
+      document.getElementById("sectionFilter").value = state.section;
+      document.getElementById("varianceFilter").value = state.variance;
+    }
+
+    function clearDataFilters({ resetSort = false } = {}) {
+      state.query = "";
+      state.segment = "all";
+      state.company = "all";
+      state.section = "all";
+      state.variance = "all";
+      if (resetSort) {
+        state.sort = "abs";
+        state.tableSort = { key: "", direction: "asc" };
+        document.getElementById("sortFilter").value = "abs";
+      }
+      syncFilterControls();
+      renderAll();
+    }
+
+    function filteredItems() {
+      const query = state.query.trim().toLowerCase();
+      let items = mergedItems();
+      if (query) {
+        items = items.filter(item =>
+          [item.code, item.description, item.company, item.section, item.subsection, item.segment]
+            .join(" ")
+            .toLowerCase()
+            .includes(query)
+        );
+      }
+      if (state.segment !== "all") items = items.filter(item => item.segment === state.segment);
+      const companyCodes = companyCodesForFilter(state.company);
+      if (companyCodes) items = items.filter(item => companyCodes.includes(normalizedCompanyCode(item)));
+      if (state.section !== "all") items = items.filter(item => item.section === state.section || item.subsection === state.section);
+      if (state.variance === "over") items = items.filter(item => item.valueDiff > 0);
+      if (state.variance === "under") items = items.filter(item => item.valueDiff < 0);
+      if (state.variance === "match") items = items.filter(item => item.valueDiff === 0);
+
+      const sorters = {
+        abs: (a, b) => Math.abs(b.valueDiff) - Math.abs(a.valueDiff),
+        valueDesc: (a, b) => b.actualValue - a.actualValue,
+        qtyAbs: (a, b) => Math.abs(b.quantityDiff) - Math.abs(a.quantityDiff),
+        code: (a, b) => a.code.localeCompare(b.code, undefined, { numeric: true })
+      };
+      return items.sort(sorters[state.sort]);
+    }
+
+    function renderSummary() {
+      const items = mergedItems();
+      const all = totals(items);
+      const headline = all.valueDiff;
+      const badge = document.getElementById("headlineBadge");
+      document.getElementById("headlineValue").textContent = signedMoney(headline);
+      badge.textContent = headline >= 0 ? "Shelf value over SAMS" : "Shelf value under SAMS";
+      badge.className = "delta-badge " + (headline >= 0 ? "up" : "down");
+      document.getElementById("sourceLine").textContent = `${sourceData.source} | ${sourceData.generatedFromRows} stock lines | counted at ${sourceData.asAt}`;
+
+      const kpis = [
+        ["SAMS value", money(all.samsValue), `${integerFormatter.format(all.samsUnits)} units in SAMS`],
+        ["Shelf value", money(all.actualValue), `${integerFormatter.format(all.actualUnits)} units counted`],
+        ["Count-math diff", signedMoney(all.valueDiff), `${signedInt(all.actualUnits - all.samsUnits)} unit movement`],
+        ["Workbook diff", signedMoney(all.workbookValueDiff), `${all.formulaIssues} formula audit rows`]
+      ];
+      document.getElementById("kpiGrid").innerHTML = kpis.map(([label, value, detail]) => `
+        <div class="kpi">
+          <label>${label}</label>
+          <strong>${value}</strong>
+          <small>${detail}</small>
+        </div>
+      `).join("");
+    }
+
+    function renderFilterStatus() {
+      const labels = activeFilterLabels();
+      const pill = document.getElementById("filterStatusPill");
+      const text = document.getElementById("filterStatusText");
+      pill.hidden = labels.length === 0;
+      if (labels.length === 0) {
+        text.textContent = "";
+        pill.removeAttribute("title");
+        return;
+      }
+      const detail = labels.length === 1 ? labels[0] : `${labels.length} active filters`;
+      text.textContent = detail;
+      pill.title = labels.join(" | ");
+    }
+
+    function renderSegments() {
+      const segments = groupBy(mergedItems(), "segment").sort((a, b) => b.actualValue - a.actualValue);
+      document.getElementById("segmentStack").innerHTML = segments.map(segment => `
+        <div class="segment-card">
+          <h3>${segment.name}<span>${integerFormatter.format(segment.count)} lines</span></h3>
+          <div class="segment-metrics">
+            <div class="metric"><span>SAMS</span><b>${money(segment.samsValue)}</b></div>
+            <div class="metric"><span>Shelf</span><b>${money(segment.actualValue)}</b></div>
+            <div class="metric"><span>Difference</span><b class="money ${classForValue(segment.valueDiff)}">${signedMoney(segment.valueDiff)}</b></div>
+            <div class="metric"><span>Variance lines</span><b>${segment.overLines + segment.underLines}</b></div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderBarList(elementId, rows, maxRows = 10, valueKey = "valueDiff", formatValue = signedMoney) {
+      const selected = rows
+        .slice()
+        .sort((a, b) => Math.abs(b[valueKey]) - Math.abs(a[valueKey]))
+        .slice(0, maxRows);
+      const max = Math.max(...selected.map(row => Math.abs(row[valueKey])), 1);
+      const html = selected.map(row => {
+        const value = row[valueKey];
+        const width = Math.max(2, Math.abs(value) / max * 50);
+        const left = value >= 0 ? 50 : 50 - width;
+        return `
+          <div class="bar-row">
+            <div class="bar-name" title="${row.name}">${row.name}</div>
+            <div class="bar-canvas" aria-hidden="true">
+              <i class="${value < 0 ? "neg" : ""}" style="left:${left}%;width:${width}%;"></i>
+            </div>
+            <div class="bar-value money ${classForValue(value)}">${formatValue(value)}</div>
+          </div>
+        `;
+      }).join("");
+      document.getElementById(elementId).innerHTML = html || `<div class="empty">No rows match the current filters.</div>`;
+    }
+
+    function renderCharts() {
+      const current = filteredItems();
+      renderBarList("sectionChart", groupByName(current, sectionChartName), 12);
+      renderBarList("companyChart", groupBy(current, "company"), 10);
+      const q = totals(current);
+      const quality = [
+        { name: "Shelf over SAMS", valueDiff: q.overLines },
+        { name: "Shelf under SAMS", valueDiff: -q.underLines },
+        { name: "Matched", valueDiff: q.matchLines },
+        { name: "Formula audit rows", valueDiff: q.formulaIssues }
+      ];
+      renderBarList("qualityChart", quality, 4, "valueDiff", signedInt);
+
+      const riskRows = current.slice().sort((a, b) => Math.abs(b.valueDiff) - Math.abs(a.valueDiff)).slice(0, 8);
+      document.getElementById("riskList").innerHTML = riskRows.map(item => `
+        <div class="risk-row">
+          <div>
+            <b>${item.description}</b>
+            <span>${item.code} | ${item.company} | ${item.segment} | ${item.subsection}${item.formulaIssue ? " | formula audit" : ""}</span>
+          </div>
+          <div class="money ${classForValue(item.valueDiff)}">${signedMoney(item.valueDiff)}</div>
+        </div>
+      `).join("") || `<div class="empty">No variance rows in this view.</div>`;
+    }
+
+    function statusFor(item) {
+      if (item.quantityDiff > 0) return ["over", "Over"];
+      if (item.quantityDiff < 0) return ["under", "Under"];
+      return ["match", "Match"];
+    }
+
+    function tableSortValue(item, key) {
+      if (key === "status") return statusFor(item)[1];
+      if (key === "audit") return item.formulaIssue ? "Formula" : "";
+      return item[key];
+    }
+
+    function compareTableValues(a, b, key) {
+      const first = tableSortValue(a, key);
+      const second = tableSortValue(b, key);
+      if (typeof first === "number" && typeof second === "number") {
+        return first - second;
+      }
+      return String(first ?? "").localeCompare(String(second ?? ""), undefined, {
+        numeric: true,
+        sensitivity: "base"
+      });
+    }
+
+    function tableItems() {
+      const rows = filteredItems();
+      if (!state.tableSort.key) return rows;
+      const direction = state.tableSort.direction === "desc" ? -1 : 1;
+      return rows.slice().sort((a, b) => {
+        const result = compareTableValues(a, b, state.tableSort.key);
+        if (result !== 0) return result * direction;
+        return a.row - b.row;
+      });
+    }
+
+    function renderTableSortHeaders() {
+      document.querySelectorAll("th[data-sort-key]").forEach(header => {
+        const active = header.dataset.sortKey === state.tableSort.key;
+        const direction = active ? state.tableSort.direction : "";
+        header.setAttribute("aria-sort", active ? (direction === "desc" ? "descending" : "ascending") : "none");
+        const icon = header.querySelector(".sort-icon");
+        if (icon) icon.textContent = active ? (direction === "desc" ? "v" : "^") : "-";
+      });
+    }
+
+    function auditReport(item) {
+      const workbookGap = item.valueDiff - item.workbookValueDiff;
+      return `
+        <span class="status-chip under audit-chip" tabindex="0" aria-describedby="audit-${item.id}">Formula</span>
+        <div class="audit-report" id="audit-${item.id}" role="tooltip">
+          <h4>${escapeHtml(item.description)}</h4>
+          <dl>
+            <dt>Workbook row</dt><dd>${item.row}</dd>
+            <dt>Code</dt><dd>${escapeHtml(item.code)}</dd>
+            <dt>SAMS / Actual</dt><dd>${item.sams} / ${item.actual}</dd>
+            <dt>Price</dt><dd>${money(item.price)}</dd>
+            <dt>Workbook qty diff</dt><dd>${signedInt(item.workbookQuantityDiff)}</dd>
+            <dt>Recalc qty diff</dt><dd>${signedInt(item.quantityDiff)}</dd>
+            <dt>Workbook value</dt><dd class="money ${classForValue(item.workbookValueDiff)}">${signedMoney(item.workbookValueDiff)}</dd>
+            <dt>Recalc value</dt><dd class="money ${classForValue(item.valueDiff)}">${signedMoney(item.valueDiff)}</dd>
+            <dt>Audit gap</dt><dd class="money ${classForValue(workbookGap)}">${signedMoney(workbookGap)}</dd>
+          </dl>
+        </div>
+      `;
+    }
+
+    function renderTable() {
+      const rows = tableItems();
+      document.getElementById("tableCount").textContent = `${rows.length} of ${baseItems.length} lines`;
+      renderTableSortHeaders();
+      document.getElementById("stockRows").innerHTML = rows.map(item => {
+        const [statusClass, statusLabel] = statusFor(item);
+        const selectedClass = state.selectedStockId === item.id ? "is-selected" : "";
+        return `
+          <tr class="${selectedClass}" data-id="${item.id}" tabindex="0" aria-selected="${state.selectedStockId === item.id}">
+            <td class="num code">${item.row}</td>
+            <td class="code">${item.code}</td>
+            <td class="desc-cell">${item.description}</td>
+            <td>${item.company}</td>
+            <td>${item.segment}</td>
+            <td>${item.subsection}</td>
+            <td class="num">${money(item.price)}</td>
+            <td class="num">${item.sams}</td>
+            <td class="num">${item.actual}</td>
+            <td class="num">${signedInt(item.quantityDiff)}</td>
+            <td class="num money ${classForValue(item.valueDiff)}">${signedMoney(item.valueDiff)}</td>
+            <td class="num money ${classForValue(item.workbookValueDiff)}">${signedMoney(item.workbookValueDiff)}</td>
+            <td><span class="status-chip ${statusClass}">${statusLabel}</span></td>
+            <td class="audit-cell">${item.formulaIssue ? auditReport(item) : ''}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function mobileItems() {
+      let items = filteredItems();
+      if (state.mobileFilter === "todo") items = items.filter(item => !item.checked);
+      if (state.mobileFilter === "checked") items = items.filter(item => item.checked);
+      if (state.mobileFilter === "variance") items = items.filter(item => item.quantityDiff !== 0);
+      return items;
+    }
+
+    function renderMobile() {
+      document.getElementById("mobileSource").textContent = `${sourceData.generatedFromRows} lines | ${sourceData.asAt}`;
+      const all = totals(mergedItems());
+      const visible = mobileItems();
+      document.getElementById("mobileStats").innerHTML = [
+        ["Checked", `${all.checked}/${all.count}`],
+        ["Variance", signedMoney(all.valueDiff)],
+        ["Visible", integerFormatter.format(visible.length)]
+      ].map(([label, value]) => `
+        <div class="mobile-stat"><span>${label}</span><b>${value}</b></div>
+      `).join("");
+
+      document.querySelectorAll("[data-mobile-filter]").forEach(button => {
+        button.classList.toggle("active", button.dataset.mobileFilter === state.mobileFilter);
+      });
+
+      document.getElementById("mobileList").innerHTML = visible.slice(0, 120).map(item => {
+        const [statusClass, statusLabel] = statusFor(item);
+        return `
+          <article class="stock-card ${item.checked ? "checked" : ""}" data-id="${item.id}">
+            <div class="stock-card-head">
+              <div>
+                <h3>${item.description}</h3>
+                <div class="stock-meta">
+                  <span>${item.code}</span>
+                  <span>${item.company}</span>
+                  <span>${item.segment}</span>
+                  <span>Row ${item.row}</span>
+                  ${item.formulaIssue ? "<span>Formula audit</span>" : ""}
+                </div>
+              </div>
+              <span class="status-chip ${statusClass}">${statusLabel}</span>
+            </div>
+            <div class="card-values">
+              <div><span>Price</span><b>${money(item.price)}</b></div>
+              <div><span>SAMS</span><b>${item.sams}</b></div>
+              <div><span>Diff</span><b class="money ${classForValue(item.valueDiff)}">${signedMoney(item.valueDiff)}</b></div>
+            </div>
+            <div class="mobile-count">
+              <button data-action="dec" aria-label="Decrease count">-</button>
+              <input data-action="input" inputmode="numeric" type="number" min="0" value="${item.actual}" aria-label="Actual shelf count">
+              <button data-action="inc" aria-label="Increase count">+</button>
+              <button class="check-btn" data-action="check">${item.checked ? "Done" : "Check"}</button>
+            </div>
+          </article>
+        `;
+      }).join("") || `<div class="empty">No stock lines match this mobile view.</div>`;
+    }
+
+    function setActual(id, nextValue) {
+      const original = baseItems.find(item => item.id === id);
+      if (!original) return;
+      const cleanValue = Math.max(0, Math.round(Number(nextValue) || 0));
+      if (cleanValue === original.actual) {
+        delete state.saved.counts[id];
+      } else {
+        state.saved.counts[id] = cleanValue;
+      }
+      saveState();
+      renderAll();
+    }
+
+    function setChecked(id) {
+      state.saved.checked[id] = !state.saved.checked[id];
+      if (!state.saved.checked[id]) delete state.saved.checked[id];
+      saveState();
+      renderAll();
+    }
+
+    function toggleStockRowHighlight(id) {
+      state.selectedStockId = state.selectedStockId === id ? "" : id;
+      renderTable();
+    }
+
+    function populateFilters() {
+      const segments = ["all", ...new Set(baseItems.map(item => item.segment))];
+      document.getElementById("segmentFilter").innerHTML = segments.map(value => `
+        <option value="${value}">${value === "all" ? "All segments" : value}</option>
+      `).join("");
+      document.getElementById("companyFilter").innerHTML = companyFilterOptions().map(option => `
+        <option value="${option.value}">${option.label}</option>
+      `).join("");
+      const sections = ["all", ...new Set(baseItems.map(item => item.section)), ...new Set(baseItems.map(item => item.subsection))];
+      document.getElementById("sectionFilter").innerHTML = Array.from(new Set(sections)).map(value => `
+        <option value="${value}">${value === "all" ? "All sections" : value}</option>
+      `).join("");
+    }
+
+    function exportCsv() {
+      const rows = mergedItems();
+      const header = ["row", "code", "description", "company", "segment", "section", "subsection", "price", "sams", "actual", "quantityDiff", "workbookQuantityDiff", "samsValue", "actualValue", "valueDiff", "workbookValueDiff", "formulaIssue", "checked"];
+      const csvRows = [header.join(",")].concat(rows.map(item => header.map(key => {
+        const value = item[key] ?? "";
+        return `"${String(value).replaceAll('"', '""')}"`;
+      }).join(",")));
+      const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "stocktake-variance-export.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function resetCounts() {
+      state.saved.counts = {};
+      state.saved.checked = {};
+      saveState();
+      renderAll();
+    }
+
+    function applyTheme() {
+      document.body.classList.toggle("theme-dark", state.saved.theme === "dark");
+    }
+
+    function toggleTheme() {
+      state.saved.theme = state.saved.theme === "dark" ? "" : "dark";
+      saveState();
+      applyTheme();
+    }
+
+    function bindEvents() {
+      document.getElementById("searchInput").addEventListener("input", event => {
+        state.query = event.target.value;
+        document.getElementById("mobileSearch").value = state.query;
+        renderAll();
+      });
+      document.getElementById("mobileSearch").addEventListener("input", event => {
+        state.query = event.target.value;
+        document.getElementById("searchInput").value = state.query;
+        renderAll();
+      });
+      document.getElementById("segmentFilter").addEventListener("change", event => {
+        state.segment = event.target.value;
+        renderAll();
+      });
+      document.getElementById("companyFilter").addEventListener("change", event => {
+        state.company = event.target.value;
+        renderAll();
+      });
+      document.getElementById("sectionFilter").addEventListener("change", event => {
+        state.section = event.target.value;
+        renderAll();
+      });
+      document.getElementById("varianceFilter").addEventListener("change", event => {
+        state.variance = event.target.value;
+        renderAll();
+      });
+      document.getElementById("sortFilter").addEventListener("change", event => {
+        state.sort = event.target.value;
+        state.tableSort = { key: "", direction: "asc" };
+        renderAll();
+      });
+      document.querySelectorAll("th[data-sort-key] .sort-button").forEach(button => {
+        button.addEventListener("click", event => {
+          const header = event.currentTarget.closest("th[data-sort-key]");
+          if (!header) return;
+          const key = header.dataset.sortKey;
+          const sameColumn = state.tableSort.key === key;
+          state.tableSort = {
+            key,
+            direction: sameColumn && state.tableSort.direction === "asc" ? "desc" : "asc"
+          };
+          renderTable();
+        });
+      });
+      document.getElementById("stockRows").addEventListener("click", event => {
+        const row = event.target.closest("tr[data-id]");
+        if (row) toggleStockRowHighlight(row.dataset.id);
+      });
+      document.getElementById("stockRows").addEventListener("keydown", event => {
+        if (!["Enter", " "].includes(event.key)) return;
+        const row = event.target.closest("tr[data-id]");
+        if (!row) return;
+        event.preventDefault();
+        toggleStockRowHighlight(row.dataset.id);
+      });
+      document.getElementById("clearFilters").addEventListener("click", () => clearDataFilters({ resetSort: true }));
+      document.getElementById("clearFilterPill").addEventListener("click", () => clearDataFilters());
+      document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+      document.getElementById("mobileTheme").addEventListener("click", toggleTheme);
+      document.getElementById("exportCsv").addEventListener("click", exportCsv);
+      document.getElementById("mobileExport").addEventListener("click", exportCsv);
+      document.getElementById("resetCounts").addEventListener("click", resetCounts);
+      document.getElementById("mobileReset").addEventListener("click", resetCounts);
+      document.getElementById("mobileTabs").addEventListener("click", event => {
+        const button = event.target.closest("[data-mobile-filter]");
+        if (!button) return;
+        state.mobileFilter = button.dataset.mobileFilter;
+        renderMobile();
+      });
+      document.getElementById("mobileList").addEventListener("click", event => {
+        const button = event.target.closest("button");
+        if (!button) return;
+        const card = event.target.closest(".stock-card");
+        if (!card) return;
+        const item = mergedItems().find(row => row.id === card.dataset.id);
+        if (!item) return;
+        if (button.dataset.action === "inc") setActual(item.id, item.actual + 1);
+        if (button.dataset.action === "dec") setActual(item.id, item.actual - 1);
+        if (button.dataset.action === "check") setChecked(item.id);
+      });
+      document.getElementById("mobileList").addEventListener("change", event => {
+        if (event.target.dataset.action !== "input") return;
+        const card = event.target.closest(".stock-card");
+        if (card) setActual(card.dataset.id, event.target.value);
+      });
+    }
+
+    function renderAll() {
+      renderFilterStatus();
+      renderSummary();
+      renderSegments();
+      renderCharts();
+      renderTable();
+      renderMobile();
+    }
+
+    populateFilters();
+    applyTheme();
+    bindEvents();
+    renderAll();
+  </script>
+</body>
+</html>

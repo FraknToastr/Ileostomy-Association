@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Find the nearest Australian Stoma Association by postcode.">
+  <title>Stoma Association Postcode Lookup</title>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="styles.css?v=1.0.0">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand">
+        <img class="uos-logo" src="assets/uos-logo-forward.svg" alt="UOS">
+        <span class="brand-accent" aria-hidden="true"></span>
+        <div class="uos-wordblock" aria-label="Urban Operating System">
+          <span>Urban</span>
+          <span>Operating</span>
+          <span>System</span>
+        </div>
+        <span class="brand-accent" aria-hidden="true"></span>
+        <img class="ileostomy-logo" src="assets/ileostomy-sa-logo-v3.png"
+             alt="Ileostomy Association of South Australia">
+        <div class="app-title">
+          <p class="eyebrow">AUSTRALIAN DIRECTORY</p>
+          <h1>Stoma Association Finder</h1>
+        </div>
+      </div>
+      <button id="about-button" class="header-button" type="button">About</button>
+    </header>
+
+    <main>
+      <div id="map" aria-label="Map showing postcode localities and the nearest Stoma Association"></div>
+
+      <section class="search-panel" aria-labelledby="search-heading">
+        <p class="eyebrow">POSTCODE LOOKUP</p>
+        <h2 id="search-heading">Find the nearest association</h2>
+        <form id="search-form" autocomplete="off">
+          <label for="postcode-input">Australian postcode</label>
+          <div class="search-row">
+            <input id="postcode-input" name="postcode" inputmode="numeric" maxlength="4"
+                   pattern="[0-9]{3,4}" placeholder="e.g. 5000" aria-describedby="search-help" required>
+            <button type="submit">Search</button>
+          </div>
+          <p id="search-help">All suburb points sharing the postcode will be displayed.</p>
+        </form>
+        <div id="status" class="status" role="status" aria-live="polite">Enter a postcode to begin.</div>
+        <div id="results" class="results" hidden></div>
+      </section>
+
+      <section class="map-options" aria-label="Map options">
+        <label for="basemap-select">Basemap</label>
+        <select id="basemap-select">
+          <option value="osm">OpenStreetMap</option>
+          <option value="aerial">Esri Aerial</option>
+        </select>
+      </section>
+
+      <section class="legend" aria-label="Map legend">
+        <div><span class="legend-pin" aria-hidden="true"></span>Postcode locality</div>
+        <div><span class="legend-association">✚</span>Nearest Stoma Association</div>
+        <div><span class="legend-line"></span>Direct link</div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="about-dialog">
+    <div class="dialog-heading">
+      <div>
+        <p class="eyebrow">ABOUT</p>
+        <h2>Stoma Association Finder</h2>
+      </div>
+      <button id="close-about" class="dialog-close" type="button" aria-label="Close">×</button>
+    </div>
+    <p>This browser-based map links Australian postcode locality points to the nearest Stoma Association using the ArcGIS Pro Near results stored in <code>NEAR_FID</code> and <code>NEAR_DIST</code>.</p>
+    <p>Mapping: MapLibre GL JS. Basemaps: OpenStreetMap and Esri World Imagery. Postcode and association data are embedded locally in the project.</p>
+    <button id="close-about-footer" class="dialog-action" type="button">Close</button>
+  </dialog>
+
+  <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+  <script src="data.js?v=1.0.0"></script>
+  <script src="app.js?v=1.0.0"></script>
+</body>
+</html>

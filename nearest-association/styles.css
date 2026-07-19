@@ -206,3 +206,355 @@ main {
     max-width: 165px;
   }
 }
+
+/* v1.4 — corrected header order and undistorted legend symbols */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.app-title {
+  flex: 0 1 auto;
+  min-width: 220px;
+}
+.brand-accent {
+  width: 3px;
+  height: 40px;
+  flex: 0 0 3px;
+  background: var(--grid);
+  border-radius: 2px;
+}
+.legend > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.legend-icon {
+  display: block;
+  width: 22px;
+  height: 28px;
+  flex: 0 0 22px;
+  aspect-ratio: 64 / 80;
+  overflow: visible;
+}
+.legend-locality-icon path {
+  fill: #cf1734;
+  stroke: #ffffff;
+  stroke-width: 4;
+}
+.legend-locality-icon circle {
+  fill: #ffffff;
+}
+.legend-association-icon path:first-child {
+  fill: #852d72;
+  stroke: #ffffff;
+  stroke-width: 4;
+}
+.legend-association-icon path:last-child {
+  fill: #ffffff;
+  stroke: none;
+}
+.legend-line {
+  width: 26px;
+  height: 0;
+  flex: 0 0 26px;
+  border-top: 3px dashed #7d3cb5;
+}
+@media (max-width: 1180px) {
+  .app-title { min-width: 180px; }
+  .ileostomy-logo { max-width: 250px; }
+}
+@media (max-width: 900px) {
+  .app-title,
+  .brand-accent:nth-of-type(3) {
+    display: none;
+  }
+}
+
+/* v1.5 About modal branding */
+.about-dialog {
+  width: min(760px, calc(100vw - 32px));
+  padding: 0;
+  overflow: hidden;
+}
+.about-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 24px 24px 18px;
+}
+.about-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+.about-uos-logo {
+  display: block;
+  width: auto;
+  height: 48px;
+  flex: 0 0 auto;
+}
+.about-accent {
+  display: block;
+  width: 3px;
+  height: 48px;
+  flex: 0 0 3px;
+  border-radius: 2px;
+  background: var(--grid);
+}
+.about-uos-wordblock,
+.about-made-by {
+  display: grid;
+  gap: 0;
+  flex: 0 0 auto;
+  font-weight: 800;
+  line-height: 0.98;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.about-uos-wordblock {
+  font-size: 0.82rem;
+}
+.about-made-by {
+  font-size: 0.78rem;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+.about-uos-wordblock span,
+.about-made-by span {
+  display: block;
+}
+.about-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--line);
+}
+.about-ileo-row {
+  display: flex;
+  justify-content: center;
+  padding: 30px 28px 16px;
+}
+.about-ileo-logo {
+  display: block;
+  width: min(560px, 88%);
+  height: auto;
+  max-height: 180px;
+  object-fit: contain;
+}
+.about-dedication {
+  margin: 0;
+  padding: 8px 28px 26px;
+  text-align: center;
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+.about-dialog .dialog-action {
+  float: none;
+  display: block;
+  margin: 0 24px 24px auto;
+  min-width: 96px;
+  min-height: 42px;
+}
+@media (max-width: 620px) {
+  .about-modal-header {
+    padding: 18px 16px 14px;
+  }
+  .about-brand-row {
+    gap: 10px;
+  }
+  .about-uos-logo,
+  .about-accent {
+    height: 36px;
+  }
+  .about-uos-wordblock,
+  .about-made-by {
+    font-size: 0.66rem;
+  }
+  .about-ileo-row {
+    padding: 24px 18px 12px;
+  }
+  .about-dedication {
+    padding: 8px 18px 22px;
+    font-size: 0.95rem;
+  }
+}
+
+/* v1.6 contact copy control */
+.copy-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 42%) 1fr;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.copy-row[hidden] {
+  display: none;
+}
+.copy-contact-button {
+  min-height: 54px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.05rem;
+  cursor: pointer;
+}
+.copy-contact-button:hover {
+  background: var(--accent-dark);
+}
+.copy-contact-button:focus-visible {
+  outline: 3px solid rgba(40, 120, 74, .28);
+  outline-offset: 3px;
+}
+.copy-contact-label {
+  margin: 0;
+  color: #536259;
+  font-size: .82rem;
+  line-height: 1.4;
+}
+@media (max-width: 520px) {
+  .copy-row {
+    grid-template-columns: 1fr;
+  }
+  .copy-contact-button {
+    width: 100%;
+  }
+}
+
+/* v1.8 - Copy button matches Search button footprint */
+.copy-row {
+  grid-template-columns: 150px 1fr;
+}
+.copy-contact-button {
+  width: 150px;
+  min-width: 150px;
+  min-height: 84px;
+  height: 84px;
+  border-radius: 18px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  align-self: stretch;
+}
+@media (max-width: 520px) {
+  .copy-contact-button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* v2.0 — Copy button follows the existing v1.8 Search button dimensions */
+.copy-row {
+  grid-template-columns: max-content 1fr;
+}
+
+.copy-contact-button {
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  border-radius: 10px;
+  padding: 0 18px;
+  align-self: auto;
+  font-size: inherit;
+}
+
+@media (max-width: 520px) {
+  .copy-row {
+    grid-template-columns: max-content 1fr;
+  }
+
+  .copy-contact-button {
+    width: auto;
+  }
+}
+
+/* v2.1 association state/territory controls */
+.association-control-panel {
+  position: absolute;
+  z-index: 10;
+  top: 202px;
+  right: 20px;
+  width: 180px;
+  padding: 13px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid rgba(125,151,135,.35);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(15px);
+}
+.control-panel-label {
+  margin: 0 0 8px;
+  font-size: .82rem;
+  font-weight: 750;
+}
+.control-panel-button {
+  width: 100%;
+  min-height: 42px;
+  border: 0;
+  border-radius: 10px;
+  padding: 9px 11px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 750;
+  cursor: pointer;
+  text-align: left;
+}
+.control-panel-button:hover {
+  background: var(--accent-dark);
+}
+.state-associations-dialog {
+  width: min(620px, calc(100vw - 32px));
+}
+.state-button-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 22px 0;
+}
+.state-button-grid button {
+  min-height: 54px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #f3f7f4;
+  color: var(--ink);
+  font-weight: 750;
+  cursor: pointer;
+  text-align: left;
+}
+.state-button-grid button:hover {
+  border-color: var(--accent);
+  background: #eaf3ed;
+}
+.state-association-list {
+  display: grid;
+  gap: 12px;
+}
+.state-association-card {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.state-association-card:last-child {
+  border-bottom: 0;
+}
+@media (max-width:700px) {
+  .association-control-panel {
+    top: auto;
+    right: 12px;
+    bottom: 88px;
+    width: 180px;
+  }
+  .state-button-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -20,12 +20,13 @@
           <span>System</span>
         </div>
         <span class="brand-accent" aria-hidden="true"></span>
-        <img class="ileostomy-logo" src="assets/ileostomy-sa-logo-v3.png"
-             alt="Ileostomy Association of South Australia">
         <div class="app-title">
           <p class="eyebrow">AUSTRALIAN DIRECTORY</p>
           <h1>Stoma Association Finder</h1>
         </div>
+        <span class="brand-accent" aria-hidden="true"></span>
+        <img class="ileostomy-logo" src="assets/ileostomy-sa-logo-v3.png"
+             alt="Ileostomy Association of South Australia">
       </div>
       <button id="about-button" class="header-button" type="button">About</button>
     </header>
@@ -47,6 +48,11 @@
         </form>
         <div id="status" class="status" role="status" aria-live="polite">Enter a postcode to begin.</div>
         <div id="results" class="results" hidden></div>
+
+        <div id="copy-row" class="copy-row" hidden>
+          <button id="copy-contact-button" class="copy-contact-button" type="button">Copy</button>
+          <p id="copy-contact-label" class="copy-contact-label">Copy contact information</p>
+        </div>
       </section>
 
       <section class="map-options" aria-label="Map options">
@@ -57,24 +63,88 @@
         </select>
       </section>
 
+      <section class="association-control-panel" aria-label="Association controls">
+        <p class="control-panel-label">Associations</p>
+        <button id="open-state-associations" class="control-panel-button" type="button">
+          Show by state or territory
+        </button>
+      </section>
+
       <section class="legend" aria-label="Map legend">
-        <div><span class="legend-pin" aria-hidden="true"></span>Postcode locality</div>
-        <div><span class="legend-association">✚</span>Nearest Stoma Association</div>
-        <div><span class="legend-line"></span>Direct link</div>
+        <div>
+          <svg class="legend-icon legend-locality-icon" viewBox="0 0 64 80" aria-hidden="true">
+            <path d="M32 2C15.4 2 2 15.4 2 32c0 20.7 30 46 30 46s30-25.3 30-46C62 15.4 48.6 2 32 2z"></path>
+            <circle cx="32" cy="32" r="13"></circle>
+          </svg>
+          <span>Postcode locality</span>
+        </div>
+        <div>
+          <svg class="legend-icon legend-association-icon" viewBox="0 0 64 80" aria-hidden="true">
+            <path d="M32 2C15.4 2 2 15.4 2 32c0 20.7 30 46 30 46s30-25.3 30-46C62 15.4 48.6 2 32 2z"></path>
+            <path d="M28 20h8v8h8v8h-8v8h-8v-8h-8v-8h8z"></path>
+          </svg>
+          <span>Nearest Stoma Association</span>
+        </div>
+        <div>
+          <span class="legend-line" aria-hidden="true"></span>
+          <span>Direct link</span>
+        </div>
       </section>
     </main>
   </div>
 
-  <dialog id="about-dialog">
+  <dialog id="state-associations-dialog" class="state-associations-dialog">
     <div class="dialog-heading">
       <div>
-        <p class="eyebrow">ABOUT</p>
-        <h2>Stoma Association Finder</h2>
+        <p class="eyebrow">ASSOCIATION DIRECTORY</p>
+        <h2>Show associations by state or territory</h2>
+      </div>
+      <button id="close-state-associations" class="dialog-close" type="button" aria-label="Close">×</button>
+    </div>
+
+    <div id="state-button-grid" class="state-button-grid">
+      <button type="button" data-state="Australian Capital Territory">Australian Capital Territory</button>
+      <button type="button" data-state="New South Wales">New South Wales</button>
+      <button type="button" data-state="Northern Territory">Northern Territory</button>
+      <button type="button" data-state="Queensland">Queensland</button>
+      <button type="button" data-state="South Australia">South Australia</button>
+      <button type="button" data-state="Tasmania">Tasmania</button>
+      <button type="button" data-state="Victoria">Victoria</button>
+      <button type="button" data-state="Western Australia">Western Australia</button>
+    </div>
+
+    <button id="close-state-associations-footer" class="dialog-action" type="button">Close</button>
+  </dialog>
+
+  <dialog id="about-dialog" class="about-dialog">
+    <div class="about-modal-header">
+      <div class="about-brand-row">
+        <img class="about-uos-logo" src="assets/uos-logo-forward.svg" alt="UOS">
+        <span class="about-accent" aria-hidden="true"></span>
+        <div class="about-uos-wordblock" aria-label="Urban Operating System">
+          <span>Urban</span>
+          <span>Operating</span>
+          <span>System</span>
+        </div>
+        <span class="about-accent" aria-hidden="true"></span>
+        <div class="about-made-by" aria-label="Made by Josh Roberts">
+          <span>Made</span>
+          <span>by Josh</span>
+          <span>Roberts</span>
+        </div>
       </div>
       <button id="close-about" class="dialog-close" type="button" aria-label="Close">×</button>
     </div>
-    <p>This browser-based map links Australian postcode locality points to the nearest Stoma Association using the ArcGIS Pro Near results stored in <code>NEAR_FID</code> and <code>NEAR_DIST</code>.</p>
-    <p>Mapping: MapLibre GL JS. Basemaps: OpenStreetMap and Esri World Imagery. Postcode and association data are embedded locally in the project.</p>
+
+    <div class="about-divider" aria-hidden="true"></div>
+
+    <div class="about-ileo-row">
+      <img class="about-ileo-logo" src="assets/ileostomy-sa-logo-v3.png"
+           alt="Ileostomy Association of South Australia">
+    </div>
+
+    <p class="about-dedication">Made for the amazing team at Ileostomy Association South Australia.</p>
+
     <button id="close-about-footer" class="dialog-action" type="button">Close</button>
   </dialog>
 

@@ -95,6 +95,109 @@
     map.setStyle(createStyle(event.target.value));
   });
 
+
+  const stateDialog = document.getElementById("state-associations-dialog");
+  const stateButtons = [...document.querySelectorAll("#state-button-grid [data-state]")];
+
+  document.getElementById("open-state-associations")
+    .addEventListener("click", () => stateDialog.showModal());
+  document.getElementById("close-state-associations")
+    .addEventListener("click", () => stateDialog.close());
+  document.getElementById("close-state-associations-footer")
+    .addEventListener("click", () => stateDialog.close());
+
+  stateButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      showAssociationsByState(button.dataset.state);
+      stateDialog.close();
+    });
+  });
+
+  function showAssociationsByState(stateName) {
+    const matches = window.STOMA_ASSOCIATIONS.filter(
+      assoc => String(assoc.USER_State_or_Territory || "").trim() === stateName
+    );
+
+    const status = document.getElementById("status");
+    const results = document.getElementById("results");
+
+    postcodeData = emptyCollection();
+    linkData = emptyCollection();
+    activeAssociation = null;
+
+    associationData = {
+      type: "FeatureCollection",
+      features: matches
+        .filter(assoc => Number.isFinite(Number(assoc.X)) && Number.isFinite(Number(assoc.Y)))
+        .map(assoc => ({
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [Number(assoc.X), Number(assoc.Y)]
+          },
+          properties: {
+            index: assoc.Index,
+            name: assoc.USER_Association_Name,
+            address: assoc.USER_Address,
+            phone: assoc.USER_Phone,
+            email: assoc.USER_Email,
+            website: assoc.USER_Website,
+            state: assoc.USER_State_or_Territory
+          }
+        }))
+    };
+
+    updateSources();
+
+    if (!matches.length) {
+      status.textContent = `No associations were found for ${stateName}.`;
+      status.className = "status error";
+      results.hidden = true;
+      copyRow.hidden = true;
+      return;
+    }
+
+    const bounds = new maplibregl.LngLatBounds();
+    associationData.features.forEach(feature => bounds.extend(feature.geometry.coordinates));
+
+    if (associationData.features.length === 1) {
+      map.easeTo({
+        center: associationData.features[0].geometry.coordinates,
+        zoom: 13,
+        duration: 900
+      });
+    } else {
+      map.fitBounds(bounds, {
+        padding: { top: 130, right: 80, bottom: 80, left: window.innerWidth > 700 ? 440 : 55 },
+        maxZoom: 12,
+        duration: 1000
+      });
+    }
+
+    status.textContent =
+      `${matches.length} Stoma Association${matches.length === 1 ? "" : "s"} shown for ${stateName}.`;
+    status.className = "status";
+
+    results.innerHTML = `
+      <div class="result-summary">
+        <span class="pill">${escapeHtml(stateName)}</span>
+        <span class="pill">${matches.length} association${matches.length === 1 ? "" : "s"}</span>
+      </div>
+      <div class="state-association-list">
+        ${matches.map(assoc => `
+          <article class="association-card state-association-card">
+            <h3>${escapeHtml(assoc.USER_Association_Name)}</h3>
+            ${assoc.USER_Address ? `<p>${escapeHtml(assoc.USER_Address)}</p>` : ""}
+            ${assoc.USER_Phone ? `<p><strong>Phone:</strong> ${escapeHtml(assoc.USER_Phone)}</p>` : ""}
+            ${assoc.USER_Email ? `<p><strong>Email:</strong> ${escapeHtml(assoc.USER_Email)}</p>` : ""}
+          </article>
+        `).join("")}
+      </div>`;
+
+    results.hidden = false;
+    copyRow.hidden = true;
+  }
+
   const about = document.getElementById("about-dialog");
   document.getElementById("about-button").addEventListener("click", () => about.showModal());
   document.getElementById("close-about").addEventListener("click", () => about.close());
@@ -176,6 +279,10 @@
     status.textContent = `${rows.length} locality point${rows.length === 1 ? "" : "s"} found for ${postcode}.`;
     status.className = "status";
     results.hidden = false;
+    copyRow.hidden = false;
+    syncCopyButtonToSearchButton();
+    copyButton.textContent = "Copy";
+    copyLabel.textContent = "Copy contact information";
   }
 
   function renderResults(postcode, rows, assoc, closest) {
@@ -318,6 +425,9 @@
     activeAssociation = null;
     updateSources();
     document.getElementById("results").hidden = true;
+    copyRow.hidden = true;
+    copyButton.textContent = "Copy";
+    copyLabel.textContent = "Copy contact information";
     if (resetStatus) {
       const status = document.getElementById("status");
       status.textContent = "Enter a postcode to begin.";
@@ -336,6 +446,77 @@
       layers: [{ id: "basemap", type: "raster", source: "basemap" }]
     };
   }
+
+
+
+  const searchButton = document.querySelector("#search-form .search-row button");
+
+  function syncCopyButtonToSearchButton() {
+    if (!searchButton || !copyButton) return;
+    const rect = searchButton.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+
+    copyButton.style.width = `${rect.width}px`;
+    copyButton.style.minWidth = `${rect.width}px`;
+    copyButton.style.maxWidth = `${rect.width}px`;
+    copyButton.style.height = `${rect.height}px`;
+    copyButton.style.minHeight = `${rect.height}px`;
+    copyButton.style.maxHeight = `${rect.height}px`;
+    copyButton.style.borderRadius = getComputedStyle(searchButton).borderRadius;
+  }
+
+  const copyButton = document.getElementById("copy-contact-button");
+  const copyLabel = document.getElementById("copy-contact-label");
+  const copyRow = document.getElementById("copy-row");
+
+  requestAnimationFrame(syncCopyButtonToSearchButton);
+  window.addEventListener("resize", syncCopyButtonToSearchButton);
+
+  copyButton.addEventListener("click", async () => {
+    if (!activeAssociation) return;
+
+    const fields = [
+      ["Name", activeAssociation.USER_Association_Name],
+      ["Address", activeAssociation.USER_Address],
+      ["Phone", activeAssociation.USER_Phone],
+      ["Email", activeAssociation.USER_Email],
+      ["Website", activeAssociation.USER_Website]
+    ];
+
+    const lines = fields
+      .map(([label, value]) => [label, String(value || "").trim()])
+      .filter(([, value]) => value)
+      .map(([label, value]) => `${label}: ${value}`);
+
+    const copyText = lines.join("\n");
+
+    try {
+      await navigator.clipboard.writeText(copyText);
+    } catch (error) {
+      const fallback = document.createElement("textarea");
+      fallback.value = copyText;
+      fallback.setAttribute("readonly", "");
+      fallback.style.position = "fixed";
+      fallback.style.opacity = "0";
+      document.body.appendChild(fallback);
+      fallback.select();
+      const succeeded = document.execCommand("copy");
+      fallback.remove();
+      if (!succeeded) throw error;
+    }
+
+    copyButton.textContent = "Copied";
+    copyLabel.textContent =
+      `${activeAssociation.USER_Association_Name} contact information has been copied to the clipboard.`;
+
+    window.clearTimeout(copyButton._resetTimer);
+    copyButton._resetTimer = window.setTimeout(() => {
+      if (activeAssociation) {
+        copyButton.textContent = "Copy";
+        copyLabel.textContent = "Copy contact information";
+      }
+    }, 5000);
+  });
 
   function formatDistance(metres) {
     if (!Number.isFinite(metres)) return "Distance unavailable";
